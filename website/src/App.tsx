@@ -19,14 +19,75 @@ import {
   Utensils,
   Wallet,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import {
+  createElement,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ElementType,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react";
 import { cn } from "@/lib/utils";
 
-function Link({
-  to,
-  ...props
-}: AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }) {
+function Link({ to, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }) {
   return <a href={to} {...props} />;
+}
+
+function Reveal({
+  as = "div",
+  children,
+  className,
+  delay = 0,
+  style,
+  ...props
+}: HTMLAttributes<HTMLElement> & {
+  as?: ElementType;
+  children: ReactNode;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+
+    if (!node || isVisible) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.12 },
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [isVisible]);
+
+  return createElement(
+    as,
+    {
+      ...props,
+      ref,
+      className: cn("reveal-on-scroll", isVisible && "is-visible", className),
+      style: {
+        ...style,
+        "--reveal-delay": `${delay}ms`,
+      } as CSSProperties,
+    },
+    children,
+  );
 }
 
 export default function LandingPage() {
@@ -52,7 +113,10 @@ export default function LandingPage() {
 
 function SiteNav() {
   return (
-    <header className="sticky top-0 z-40 border-b border-earth-200/60 bg-canvas/80 backdrop-blur-xl">
+    <Reveal
+      as="header"
+      className="sticky top-0 z-40 border-b border-earth-200/60 bg-canvas/80 backdrop-blur-xl"
+    >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 md:px-8">
         <Link to="/" className="flex items-center gap-2">
           <div className="grid size-8 place-items-center rounded-xl bg-earth-950 text-canvas">
@@ -61,10 +125,18 @@ function SiteNav() {
           <span className="font-serif text-2xl leading-none">Remy</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-earth-700 md:flex">
-          <a href="#how" className="transition-colors hover:text-earth-950">How it works</a>
-          <a href="#features" className="transition-colors hover:text-earth-950">Features</a>
-          <a href="#trust" className="transition-colors hover:text-earth-950">Trust</a>
-          <a href="#faq" className="transition-colors hover:text-earth-950">FAQ</a>
+          <a href="#how" className="transition-colors hover:text-earth-950">
+            How it works
+          </a>
+          <a href="#features" className="transition-colors hover:text-earth-950">
+            Features
+          </a>
+          <a href="#trust" className="transition-colors hover:text-earth-950">
+            Trust
+          </a>
+          <a href="#faq" className="transition-colors hover:text-earth-950">
+            FAQ
+          </a>
         </nav>
         <div className="flex items-center gap-2">
           <Link
@@ -81,7 +153,7 @@ function SiteNav() {
           </Link>
         </div>
       </div>
-    </header>
+    </Reveal>
   );
 }
 
@@ -89,27 +161,28 @@ function SiteNav() {
 
 function Hero() {
   return (
-    <section
+    <Reveal
+      as="section"
       className="relative overflow-hidden"
       style={{
         background:
           "radial-gradient(60% 70% at 75% 25%, color-mix(in oklab, var(--warm) 14%, transparent) 0%, transparent 60%), radial-gradient(50% 60% at 15% 80%, color-mix(in oklab, var(--leaf) 10%, transparent) 0%, transparent 65%)",
       }}
     >
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-[1.05fr_1fr] md:gap-10 md:px-8 md:py-24 lg:py-32">
-        <div className="space-y-7">
+      <div className="mx-auto grid min-h-[calc(100svh-4rem)] w-full max-w-6xl items-center gap-8 px-5 py-8 sm:py-10 md:grid-cols-[1.05fr_1fr] md:gap-8 md:px-8 lg:py-12">
+        <Reveal className="space-y-5 lg:space-y-6" delay={120}>
           <span className="inline-flex items-center gap-2 rounded-full bg-warm-soft px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-warm ring-1 ring-warm/20">
-            <Sparkles className="size-3" /> AI co-pilot Â· cooking, first
+            <Sparkles className="size-3" /> AI co-pilot · cooking, first
           </span>
-          <h1 className="text-balance font-serif text-[2.75rem] leading-[1.02] md:text-6xl lg:text-7xl">
+          <h1 className="text-balance font-serif text-[2.35rem] leading-[1.02] sm:text-5xl md:text-6xl lg:text-[4rem]">
             Cook with quiet
             <br />
             confidence.
           </h1>
-          <p className="max-w-[52ch] text-pretty text-base leading-relaxed text-earth-700 md:text-lg">
-            Remy is a calm AI coach for your kitchen. It sees what you have, guides
-            you through the cook with gentle real-time tips, and helps you spend less
-            at the grocery store â€” without ever making you feel watched.
+          <p className="max-w-[50ch] text-pretty text-sm leading-relaxed text-earth-700 sm:text-base md:text-[1.05rem]">
+            Remy is a calm AI coach for your kitchen. It sees what you have, guides you through the
+            cook with gentle real-time tips, and helps you spend less at the grocery store ” without
+            ever making you feel watched.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <Link
@@ -126,13 +199,20 @@ function Hero() {
             </a>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-4 text-[12px] text-earth-600">
-            <span className="inline-flex items-center gap-1.5"><Shield className="size-3.5" /> Camera footage stays on device</span>
-            <span className="inline-flex items-center gap-1.5"><Leaf className="size-3.5" /> Free during beta</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Shield className="size-3.5" /> Camera footage stays on device
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Leaf className="size-3.5" /> Free during beta
+            </span>
           </div>
-        </div>
+        </Reveal>
 
         {/* Phone mock cluster */}
-        <div className="relative mx-auto h-[560px] w-full max-w-[440px] md:h-[640px]">
+        <Reveal
+          className="relative mx-auto h-[300px] w-full max-w-[300px] sm:h-[360px] sm:max-w-[340px] md:h-[460px] md:max-w-[360px] lg:h-[500px] lg:max-w-[380px]"
+          delay={260}
+        >
           {/* Tilted background phone */}
           <div className="absolute right-0 top-6 hidden h-full w-[80%] -rotate-6 sm:block">
             <PhoneFrame tone="dark" />
@@ -149,32 +229,45 @@ function Hero() {
           </div>
           {/* Floating step chip */}
           <div className="absolute -top-3 right-3 rotate-[-4deg] rounded-full bg-canvas px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-earth-800 shadow-lg ring-1 ring-black/5">
-            Step 3 of 8 Â· 12 min left
+            Step 3 of 8 · 12 min left
           </div>
-        </div>
+        </Reveal>
       </div>
-    </section>
+    </Reveal>
   );
 }
 
 /* ---------------- Problem ---------------- */
 
 const problems = [
-  { icon: ShoppingBasket, title: "Empty fridge, blank mind", body: "You have ingredients, you just can't see the meal." },
+  {
+    icon: ShoppingBasket,
+    title: "Empty fridge, blank mind",
+    body: "You have ingredients, you just can't see the meal.",
+  },
   { icon: Receipt, title: "Wasted ingredients", body: "Half a bunch of herbs goes brown again." },
-  { icon: MessageCircle, title: "Stuck mid-recipe", body: "Is the pan hot enough? Is this burning? Recipes won't say." },
-  { icon: Wallet, title: "Grocery creep", body: "Twenty dollars for an ingredient you'll use twice." },
+  {
+    icon: MessageCircle,
+    title: "Stuck mid-recipe",
+    body: "Is the pan hot enough? Is this burning? Recipes won't say.",
+  },
+  {
+    icon: Wallet,
+    title: "Grocery creep",
+    body: "Twenty dollars for an ingredient you'll use twice.",
+  },
 ];
 
 function ProblemStrip() {
   return (
     <Section eyebrow="The everyday friction" title="Cooking shouldn't feel like a quiz.">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {problems.map((p) => {
+        {problems.map((p, i) => {
           const Icon = p.icon;
           return (
-            <div
+            <Reveal
               key={p.title}
+              delay={i * 80}
               className="rounded-[24px] bg-white p-6 ring-1 ring-black/5"
             >
               <div className="grid size-10 place-items-center rounded-xl bg-earth-100 text-earth-800">
@@ -182,7 +275,7 @@ function ProblemStrip() {
               </div>
               <p className="mt-4 font-serif text-xl leading-snug">{p.title}</p>
               <p className="mt-1.5 text-sm leading-relaxed text-earth-600">{p.body}</p>
-            </div>
+            </Reveal>
           );
         })}
       </div>
@@ -203,7 +296,7 @@ function HowItWorks() {
     {
       n: "02",
       title: "Cook with a calm coach",
-      body: "Point your camera at the pan. Remy nudges in the moment â€” heat down, garlic ready, sauce glossy.",
+      body: "Point your camera at the pan. Remy nudges in the moment ” heat down, garlic ready, sauce glossy.",
       mock: <CameraMock />,
     },
     {
@@ -214,14 +307,10 @@ function HowItWorks() {
     },
   ];
   return (
-    <Section
-      id="how"
-      eyebrow="How Remy works"
-      title="Three moments, one calm flow."
-    >
+    <Section id="how" eyebrow="How Remy works" title="Three moments, one calm flow.">
       <div className="grid gap-6 md:grid-cols-3">
-        {steps.map((s) => (
-          <div key={s.n} className="space-y-5">
+        {steps.map((s, i) => (
+          <Reveal key={s.n} className="space-y-5" delay={i * 100}>
             <div className="overflow-hidden rounded-[28px] bg-earth-100/60 p-5 ring-1 ring-black/5">
               {s.mock}
             </div>
@@ -232,7 +321,7 @@ function HowItWorks() {
               <h3 className="mt-1.5 font-serif text-2xl leading-tight">{s.title}</h3>
               <p className="mt-2 text-[14px] leading-relaxed text-earth-600">{s.body}</p>
             </div>
-          </div>
+          </Reveal>
         ))}
       </div>
     </Section>
@@ -245,57 +334,78 @@ const features = [
   {
     eyebrow: "Recipes from what you have",
     title: "No more 'what's for dinner?'",
-    body: "Remy looks at your pantry photos and the chips you've tapped, then suggests something doable â€” not aspirational. Always with a realistic time and skill level.",
-    bullets: ["Photo-based ingredient detection", "Filters for time, mood & skill", "Saves what you actually liked"],
+    body: "Remy looks at your pantry photos and the chips you've tapped, then suggests something doable ” not aspirational. Always with a realistic time and skill level.",
+    bullets: [
+      "Photo-based ingredient detection",
+      "Filters for time, mood & skill",
+      "Saves what you actually liked",
+    ],
     mock: <RecipeMock />,
   },
   {
     eyebrow: "Live camera guidance",
     title: "A coach that's actually there.",
-    body: "Remy watches the pan with you and offers quiet, well-timed nudges. No popups, no lectures â€” just the small note you wish someone had said.",
-    bullets: ["Real-time pan & timing cues", "Voice or silent mode", "Pause, rewind a step, ask a question"],
+    body: "Remy watches the pan with you and offers quiet, well-timed nudges. No popups, no lectures ” just the small note you wish someone had said.",
+    bullets: [
+      "Real-time pan & timing cues",
+      "Voice or silent mode",
+      "Pause, rewind a step, ask a question",
+    ],
     mock: <CameraMockLarge />,
   },
   {
     eyebrow: "Thoughtful post-cook feedback",
     title: "A recap that feels like a friend.",
     body: "Wins first. One thing to try next time. No streaks, no shame. Remy tracks the skill, not the calories.",
-    bullets: ["Wins & gentle 'to try' notes", "Skill tree progress", "Explainable â€” every tip cites why"],
+    bullets: [
+      "Wins & gentle 'to try' notes",
+      "Skill tree progress",
+      "Explainable ” every tip cites why",
+    ],
     mock: <FeedbackMockLarge />,
   },
   {
     eyebrow: "Smarter grocery help",
     title: "Cook well, spend less.",
-    body: "Pine nuts for $9? Try toasted sunflower seeds. Remy suggests honest swaps and flags what's on sale nearby â€” no upsells, no affiliate noise.",
-    bullets: ["Cheaper ingredient swaps", "Sale-aware suggestions", "Tracks your real monthly savings"],
+    body: "Pine nuts for $9? Try toasted sunflower seeds. Remy suggests honest swaps and flags what's on sale nearby ” no upsells, no affiliate noise.",
+    bullets: [
+      "Cheaper ingredient swaps",
+      "Sale-aware suggestions",
+      "Tracks your real monthly savings",
+    ],
     mock: <SavingsMock />,
   },
   {
     eyebrow: "Progress that compounds",
     title: "Confidence, one cook at a time.",
-    body: "Each session feeds a quiet skill tree. You'll feel sautÃ©, knife work, and seasoning move from 'shaky' to 'second nature' â€” without a single notification chasing you.",
-    bullets: ["Skill tree across techniques", "Weekly recap, no streaks", "Coach voice you can tune"],
+    body: "Each session feeds a quiet skill tree. You'll feel saute, knife work, and seasoning move from 'shaky' to 'second nature' ” without a single notification chasing you.",
+    bullets: [
+      "Skill tree across techniques",
+      "Weekly recap, no streaks",
+      "Coach voice you can tune",
+    ],
     mock: <ProgressMock />,
   },
 ];
 
 function FeatureRows() {
   return (
-    <section id="features" className="border-t border-earth-200/60 bg-earth-100/40">
+    <Reveal as="section" id="features" className="border-t border-earth-200/60 bg-earth-100/40">
       <div className="mx-auto w-full max-w-6xl px-5 py-20 md:px-8 md:py-28">
-        <header className="mx-auto max-w-2xl text-center">
+        <Reveal as="header" className="mx-auto max-w-2xl text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-warm">
             What Remy does
           </p>
           <h2 className="mt-3 font-serif text-4xl leading-tight md:text-5xl">
             Built for the way you actually cook.
           </h2>
-        </header>
+        </Reveal>
 
         <div className="mt-16 space-y-20 md:space-y-28">
           {features.map((f, i) => (
-            <div
+            <Reveal
               key={f.title}
+              delay={80}
               className={cn(
                 "grid items-center gap-10 md:grid-cols-2 md:gap-16",
                 i % 2 === 1 && "md:[&>*:first-child]:order-2",
@@ -308,9 +418,7 @@ function FeatureRows() {
                 <h3 className="text-balance font-serif text-3xl leading-tight md:text-4xl">
                   {f.title}
                 </h3>
-                <p className="text-pretty text-base leading-relaxed text-earth-700">
-                  {f.body}
-                </p>
+                <p className="text-pretty text-base leading-relaxed text-earth-700">{f.body}</p>
                 <ul className="space-y-2 pt-1">
                   {f.bullets.map((b) => (
                     <li key={b} className="flex items-start gap-2.5 text-sm text-earth-800">
@@ -321,22 +429,42 @@ function FeatureRows() {
                 </ul>
               </div>
               <div className="relative">{f.mock}</div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
-    </section>
+    </Reveal>
   );
 }
 
 /* ---------------- Example journey ---------------- */
 
 const beats = [
-  { time: "6:42 PM", title: "Opens the app, tired.", body: "Remy greets her by name. 'What do you have on hand?'" },
-  { time: "6:43 PM", title: "Snaps the fridge.", body: "Three photos. Remy identifies pasta, garlic, half a lemon, parmesan, wilted spinach." },
-  { time: "6:44 PM", title: "Picks a 20-minute pasta.", body: "Easy+ difficulty. The coach quietly notes today's skill: garlic that's golden, not burnt." },
-  { time: "6:51 PM", title: "Cooks with the coach.", body: "'Ease the heat down a notch.' She does. The garlic stays sweet. She smiles." },
-  { time: "7:09 PM", title: "A calm recap.", body: "One win, one tiny thing to try. And a $4 swap for next week's pine nuts." },
+  {
+    time: "6:42 PM",
+    title: "Opens the app, tired.",
+    body: "Remy greets her by name. 'What do you have on hand?'",
+  },
+  {
+    time: "6:43 PM",
+    title: "Snaps the fridge.",
+    body: "Three photos. Remy identifies pasta, garlic, half a lemon, parmesan, wilted spinach.",
+  },
+  {
+    time: "6:44 PM",
+    title: "Picks a 20-minute pasta.",
+    body: "Easy+ difficulty. The coach quietly notes today's skill: garlic that's golden, not burnt.",
+  },
+  {
+    time: "6:51 PM",
+    title: "Cooks with the coach.",
+    body: "'Ease the heat down a notch.' She does. The garlic stays sweet. She smiles.",
+  },
+  {
+    time: "7:09 PM",
+    title: "A calm recap.",
+    body: "One win, one tiny thing to try. And a $4 swap for next week's pine nuts.",
+  },
 ];
 
 function Journey() {
@@ -346,7 +474,12 @@ function Journey() {
         <div className="absolute left-[14px] top-2 bottom-2 w-px bg-earth-200 md:left-[19px]" />
         <ol className="space-y-6">
           {beats.map((b, i) => (
-            <li key={b.time} className="relative grid grid-cols-[40px_1fr] items-start gap-4">
+            <Reveal
+              as="li"
+              key={b.time}
+              delay={i * 80}
+              className="relative grid grid-cols-[40px_1fr] items-start gap-4"
+            >
               <div className="relative z-10 grid size-[30px] place-items-center rounded-full bg-earth-950 font-serif text-xs text-canvas md:size-10 md:text-sm">
                 {i + 1}
               </div>
@@ -357,7 +490,7 @@ function Journey() {
                 <p className="mt-1 font-serif text-xl leading-snug">{b.title}</p>
                 <p className="mt-1 text-sm leading-relaxed text-earth-600">{b.body}</p>
               </div>
-            </li>
+            </Reveal>
           ))}
         </ol>
       </div>
@@ -387,9 +520,9 @@ const trust = [
 
 function TrustSection() {
   return (
-    <section id="trust" className="border-y border-earth-200/60 bg-earth-100/40">
+    <Reveal as="section" id="trust" className="border-y border-earth-200/60 bg-earth-100/40">
       <div className="mx-auto w-full max-w-6xl px-5 py-20 md:px-8 md:py-28">
-        <header className="mx-auto max-w-2xl text-center">
+        <Reveal as="header" className="mx-auto max-w-2xl text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-leaf">
             Trust & care
           </p>
@@ -397,16 +530,17 @@ function TrustSection() {
             Guidance, not judgment.
           </h2>
           <p className="mt-4 text-pretty text-base leading-relaxed text-earth-700">
-            An AI that helps you cook should also know when to stay quiet. Remy is
-            built to feel calm, explainable, and yours.
+            An AI that helps you cook should also know when to stay quiet. Remy is built to feel
+            calm, explainable, and yours.
           </p>
-        </header>
+        </Reveal>
         <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {trust.map((t) => {
+          {trust.map((t, i) => {
             const Icon = t.icon;
             return (
-              <div
+              <Reveal
                 key={t.title}
+                delay={i * 80}
                 className="rounded-[24px] bg-leaf-soft p-6 ring-1 ring-leaf/15"
               >
                 <div className="grid size-10 place-items-center rounded-xl bg-white/70 text-leaf">
@@ -414,12 +548,12 @@ function TrustSection() {
                 </div>
                 <p className="mt-4 font-serif text-xl leading-snug">{t.title}</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-earth-700">{t.body}</p>
-              </div>
+              </Reveal>
             );
           })}
         </div>
       </div>
-    </section>
+    </Reveal>
   );
 }
 
@@ -440,7 +574,7 @@ const faqs = [
   },
   {
     q: "Is cooking the only skill?",
-    a: "It's where we're starting â€” kitchens are full of small skills that benefit from a patient coach. More everyday skills are on the way.",
+    a: "It's where we're starting ” kitchens are full of small skills that benefit from a patient coach. More everyday skills are on the way.",
   },
 ];
 
@@ -449,7 +583,9 @@ function FAQ() {
     <Section id="faq" eyebrow="Common questions" title="The honest answers.">
       <div className="mx-auto max-w-3xl divide-y divide-earth-200 overflow-hidden rounded-[28px] bg-white ring-1 ring-black/5">
         {faqs.map((f, i) => (
-          <FAQItem key={f.q} q={f.q} a={f.a} defaultOpen={i === 0} />
+          <Reveal key={f.q} delay={i * 70}>
+            <FAQItem q={f.q} a={f.a} defaultOpen={i === 0} />
+          </Reveal>
         ))}
       </div>
     </Section>
@@ -472,9 +608,7 @@ function FAQItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: bo
           )}
         />
       </button>
-      {open && (
-        <div className="px-6 pb-6 text-[14px] leading-relaxed text-earth-700">{a}</div>
-      )}
+      {open && <div className="px-6 pb-6 text-[14px] leading-relaxed text-earth-700">{a}</div>}
     </div>
   );
 }
@@ -483,7 +617,7 @@ function FAQItem({ q, a, defaultOpen }: { q: string; a: string; defaultOpen?: bo
 
 function FinalCTA() {
   return (
-    <section className="px-5 py-20 md:px-8 md:py-28">
+    <Reveal as="section" className="px-5 py-20 md:px-8 md:py-28">
       <div
         className="mx-auto w-full max-w-5xl overflow-hidden rounded-[36px] p-10 ring-1 ring-warm/15 md:p-16"
         style={{
@@ -502,8 +636,8 @@ function FinalCTA() {
               tonight.
             </h2>
             <p className="max-w-[44ch] text-base leading-relaxed text-earth-700">
-              Open Remy, snap your fridge, and let a calm coach help you build real,
-              everyday kitchen confidence.
+              Open Remy, snap your fridge, and let a calm coach help you build real, everyday
+              kitchen confidence.
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
@@ -550,7 +684,7 @@ function FinalCTA() {
           </form>
         </div>
       </div>
-    </section>
+    </Reveal>
   );
 }
 
@@ -558,7 +692,7 @@ function FinalCTA() {
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-earth-200/60">
+    <Reveal as="footer" className="border-t border-earth-200/60">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-12 md:grid-cols-4 md:px-8">
         <div className="md:col-span-2">
           <Link to="/" className="flex items-center gap-2">
@@ -568,8 +702,8 @@ function SiteFooter() {
             <span className="font-serif text-2xl leading-none">Remy</span>
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-earth-600">
-            A calm AI coach for the kitchen â€” and, one day, for every small skill
-            that makes everyday life better.
+            A calm AI coach for the kitchen ” and, one day, for every small skill that makes
+            everyday life better.
           </p>
         </div>
         <FooterCol
@@ -593,13 +727,13 @@ function SiteFooter() {
       </div>
       <div className="border-t border-earth-200/60">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-5 py-6 text-[12px] text-earth-600 md:flex-row md:px-8">
-          <p>Â© {new Date().getFullYear()} Remy Labs. Made with care.</p>
+          <p>© {new Date().getFullYear()} Remy Labs. Made with care.</p>
           <p className="inline-flex items-center gap-1.5">
             <Sprout className="size-3.5 text-leaf" /> Cooking, first.
           </p>
         </div>
       </div>
-    </footer>
+    </Reveal>
   );
 }
 
@@ -619,11 +753,15 @@ function FooterCol({
         {items.map((it) =>
           it.to ? (
             <li key={it.label}>
-              <Link to={it.to} className="hover:text-earth-950">{it.label}</Link>
+              <Link to={it.to} className="hover:text-earth-950">
+                {it.label}
+              </Link>
             </li>
           ) : (
             <li key={it.label}>
-              <a href={it.href} className="hover:text-earth-950">{it.label}</a>
+              <a href={it.href} className="hover:text-earth-950">
+                {it.label}
+              </a>
             </li>
           ),
         )}
@@ -646,19 +784,17 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="px-5 py-20 md:px-8 md:py-28">
+    <Reveal as="section" id={id} className="px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto w-full max-w-6xl">
-        <header className="mx-auto max-w-2xl text-center">
+        <Reveal as="header" className="mx-auto max-w-2xl text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-warm">
             {eyebrow}
           </p>
-          <h2 className="mt-3 font-serif text-4xl leading-tight md:text-5xl">
-            {title}
-          </h2>
-        </header>
+          <h2 className="mt-3 font-serif text-4xl leading-tight md:text-5xl">{title}</h2>
+        </Reveal>
         <div className="mt-14">{children}</div>
       </div>
-    </section>
+    </Reveal>
   );
 }
 
@@ -701,7 +837,7 @@ function LiveCookingMock() {
       {/* Step pill */}
       <div className="absolute left-1/2 top-8 -translate-x-1/2 rounded-full bg-black/30 px-3 py-1.5 ring-1 ring-white/10 backdrop-blur-md">
         <p className="text-[10px] font-medium tracking-wide text-white">
-          Step 4 of 12 Â· SautÃ© the garlic
+          Step 4 of 12 · Saute the garlic
         </p>
       </div>
       {/* AI bubble */}
@@ -714,10 +850,10 @@ function LiveCookingMock() {
         </div>
         <div className="space-y-0.5">
           <p className="text-[9px] font-semibold uppercase tracking-wider text-earth-600">
-            Coach Â· live
+            Coach · live
           </p>
           <p className="text-pretty text-[12.5px] leading-snug text-earth-950">
-            Garlic looks golden â€” ease the heat down a notch.
+            Garlic looks golden ” ease the heat down a notch.
           </p>
         </div>
       </div>
@@ -733,10 +869,10 @@ function SwapCard() {
       </div>
       <p className="mt-1.5 text-sm leading-snug">
         <span className="text-earth-600 line-through">Pine nuts</span>{" "}
-        <span className="font-semibold">â†’ sunflower seeds</span>
+        <span className="font-semibold">†’ sunflower seeds</span>
       </p>
       <div className="mt-2 inline-flex rounded-full bg-leaf-soft px-2 py-0.5 text-[11px] font-semibold text-leaf">
-        âˆ’$4.80
+        ˆ’$4.80
       </div>
     </div>
   );
@@ -763,7 +899,9 @@ function SetupMock() {
             key={c}
             className={cn(
               "rounded-full px-2.5 py-1 text-[11px] font-medium ring-1",
-              i < 4 ? "bg-earth-950 text-canvas ring-earth-950" : "bg-white text-earth-700 ring-black/5",
+              i < 4
+                ? "bg-earth-950 text-canvas ring-earth-950"
+                : "bg-white text-earth-700 ring-black/5",
             )}
           >
             {c}
@@ -803,7 +941,7 @@ function FeedbackMock() {
       </div>
       <div className="rounded-2xl bg-white p-3 ring-1 ring-black/5">
         <div className="flex items-center justify-between text-[11px]">
-          <span className="font-medium">SautÃ©</span>
+          <span className="font-medium">Saute</span>
           <span className="text-earth-600">70%</span>
         </div>
         <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-earth-200">
@@ -829,12 +967,19 @@ function RecipeMock() {
         <h4 className="font-serif text-2xl leading-tight">Pasta + 3 pantry items</h4>
         <div className="grid grid-cols-3 gap-2 rounded-2xl bg-earth-100/70 p-3 ring-1 ring-black/5">
           <MiniMeta icon={Timer} label="20 min" />
-          <div className="border-x border-earth-200"><MiniMeta icon={Flame} label="Easy+" /></div>
-          <MiniMeta icon={ChefHat} label="SautÃ©" />
+          <div className="border-x border-earth-200">
+            <MiniMeta icon={Flame} label="Easy+" />
+          </div>
+          <MiniMeta icon={ChefHat} label="Saute" />
         </div>
         <div className="flex flex-wrap gap-1.5">
           {["Rigatoni", "Butter", "Garlic", "Parmesan"].map((t) => (
-            <span key={t} className="rounded-full bg-white px-2.5 py-1 text-[11px] ring-1 ring-earth-200">{t}</span>
+            <span
+              key={t}
+              className="rounded-full bg-white px-2.5 py-1 text-[11px] ring-1 ring-earth-200"
+            >
+              {t}
+            </span>
           ))}
         </div>
       </div>
@@ -859,7 +1004,7 @@ function CameraMockLarge() {
       <div className="absolute inset-0 grid place-items-center text-7xl opacity-25">ðŸ³</div>
 
       <div className="absolute left-1/2 top-5 -translate-x-1/2 rounded-full bg-black/30 px-3 py-1.5 ring-1 ring-white/10 backdrop-blur">
-        <p className="text-[11px] font-medium text-white">Step 4 Â· SautÃ© the garlic</p>
+        <p className="text-[11px] font-medium text-white">Step 4 · Saute the garlic</p>
       </div>
 
       <div className="absolute inset-x-4 bottom-4 space-y-2.5">
@@ -871,13 +1016,19 @@ function CameraMockLarge() {
             </span>
           </div>
           <div className="space-y-0.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-earth-600">Coach</p>
-            <p className="text-[13px] leading-snug">Garlic is looking golden â€” ease the heat down.</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-earth-600">
+              Coach
+            </p>
+            <p className="text-[13px] leading-snug">
+              Garlic is looking golden ” ease the heat down.
+            </p>
           </div>
         </div>
         <div className="rounded-[20px] bg-canvas p-4 ring-1 ring-black/5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-earth-600">Next</p>
-          <p className="mt-1 font-serif text-base leading-tight">Add the reserved pasta water, slowly.</p>
+          <p className="mt-1 font-serif text-base leading-tight">
+            Add the reserved pasta water, slowly.
+          </p>
         </div>
       </div>
     </div>
@@ -906,7 +1057,9 @@ function FeedbackMockLarge() {
       </div>
       <div className="flex items-center gap-2 rounded-2xl bg-earth-100/70 p-3 text-[11px]">
         <Utensils className="size-3.5 text-earth-600" />
-        <span className="text-earth-700">Skill +1 Â· <span className="font-semibold">SautÃ©</span></span>
+        <span className="text-earth-700">
+          Skill +1 · <span className="font-semibold">Saute</span>
+        </span>
       </div>
     </div>
   );
@@ -922,7 +1075,9 @@ function SavingsMock() {
     <div className="space-y-3 rounded-[28px] bg-white p-6 ring-1 ring-black/5">
       <div className="flex items-center justify-between rounded-2xl bg-leaf-soft p-4 ring-1 ring-leaf/15">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-leaf">Saved this month</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-leaf">
+            Saved this month
+          </p>
           <p className="mt-0.5 font-serif text-3xl">$32.40</p>
         </div>
         <div className="grid size-11 place-items-center rounded-xl bg-white/70 text-leaf">
@@ -931,13 +1086,16 @@ function SavingsMock() {
       </div>
       <ul className="space-y-2">
         {items.map((s) => (
-          <li key={s.from} className="flex items-center justify-between rounded-2xl bg-earth-100/60 p-3 text-[13px]">
+          <li
+            key={s.from}
+            className="flex items-center justify-between rounded-2xl bg-earth-100/60 p-3 text-[13px]"
+          >
             <span>
               <span className="text-earth-600 line-through">{s.from}</span>{" "}
-              <span className="font-semibold">â†’ {s.to}</span>
+              <span className="font-semibold">†’ {s.to}</span>
             </span>
             <span className="rounded-full bg-leaf-soft px-2 py-0.5 text-[11px] font-semibold text-leaf">
-              âˆ’{s.save}
+              ˆ’{s.save}
             </span>
           </li>
         ))}
@@ -948,7 +1106,7 @@ function SavingsMock() {
 
 function ProgressMock() {
   const skills = [
-    { name: "SautÃ©", level: 0.7 },
+    { name: "Saute", level: 0.7 },
     { name: "Knife work", level: 0.5 },
     { name: "Roasting", level: 0.35 },
     { name: "Sauces", level: 0.2 },
@@ -957,7 +1115,9 @@ function ProgressMock() {
     <div className="space-y-4 rounded-[28px] bg-white p-6 ring-1 ring-black/5">
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-earth-600">This week</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-earth-600">
+            This week
+          </p>
           <p className="font-serif text-2xl">Quietly leveling up.</p>
         </div>
         <span className="inline-flex items-center gap-1 rounded-full bg-leaf-soft px-2 py-1 text-[11px] font-semibold text-leaf">
