@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   Modal,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -46,6 +47,7 @@ import {
   X,
   Zap,
 } from "lucide-react-native";
+import { CameraView, useCameraPermissions, useMicrophonePermissions } from "expo-camera";
 import {
   InstrumentSans_400Regular,
   InstrumentSans_500Medium,
@@ -58,6 +60,7 @@ import {
   InstrumentSerif_400Regular_Italic,
   useFonts as useSerifFonts,
 } from "@expo-google-fonts/instrument-serif";
+import { VideoView, useVideoPlayer } from "expo-video";
 
 type Screen =
   | "onboarding"
@@ -81,6 +84,14 @@ type CapturedShot = {
   id: string;
   uri: string;
   label: string;
+};
+
+type RecordedVideo = {
+  uri: string;
+  createdAt: string;
+  durationMs: number;
+  platform: string;
+  mimeType?: string;
 };
 
 const colors = {
@@ -526,16 +537,37 @@ function RecipeScreen({ nav }: { nav: Nav }) {
 }
 
 function LiveScreen({ nav }: { nav: Nav }) {
+  const [recordedVideo, setRecordedVideo] = useState<RecordedVideo | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (Platform.OS === "web" && recordedVideo?.uri.startsWith("blob:")) {
+        URL.revokeObjectURL(recordedVideo.uri);
+      }
+    };
+  }, [recordedVideo?.uri]);
+
   return (
     <SafeAreaView style={styles.liveSafe}>
       <View style={styles.liveViewport}>
-        <FauxCamera />
+        {recordedVideo ? (
+          <RecordedVideoPlayer
+            recordedVideo={recordedVideo}
+            onRecordAgain={() => setRecordedVideo(null)}
+          />
+        ) : Platform.OS === "web" ? (
+          <WebVideoRecorder onRecorded={setRecordedVideo} />
+        ) : (
+          <NativeVideoRecorder onRecorded={setRecordedVideo} />
+        )}
 
         <View style={styles.liveTop}>
           <IconButton icon={ChevronLeft} dark onPress={() => nav("recipe")} />
           <View style={styles.liveCenter}>
             <View style={styles.livePill}>
-              <Text style={styles.livePillText}>Step 4 of 12 - Saute the garlic</Text>
+              <Text style={styles.livePillText}>
+                {recordedVideo ? "Playback ready" : "Record video + audio"}
+              </Text>
             </View>
             <View style={styles.dots}>
               {Array.from({ length: 12 }).map((_, i) => (
@@ -551,49 +583,391 @@ function LiveScreen({ nav }: { nav: Nav }) {
           </View>
           <IconButton icon={X} dark onPress={() => nav("feedback")} />
         </View>
-
-        <View style={styles.sideControls}>
-          {[Mic, Volume2, Pause].map((Icon, index) => (
-            <View key={index} style={styles.liveCircle}>
-              <Icon size={16} color={colors.white} />
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.liveBottom}>
-          <View style={styles.coachBubble}>
-            <View style={styles.pulseWrap}>
-              <View style={styles.pulseDot} />
-            </View>
-            <View style={styles.flex1}>
-              <Text style={styles.coachLabel}>Coach - live</Text>
-              <Text style={styles.coachText}>
-                Garlic is looking golden - ease the heat down a notch to keep it
-                sweet.
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.guidanceCard}>
-            <Text style={styles.eyebrow}>What's next</Text>
-            <Text style={styles.guidanceTitle}>Add the reserved pasta water, slowly.</Text>
-            <Text style={styles.cardBody}>
-              Look for a thin glossy emulsion - not a soup. A few tablespoons at a
-              time.
-            </Text>
-            <View style={styles.buttonRow}>
-              <Pressable style={styles.backButton}>
-                <Text style={styles.backButtonText}>Back</Text>
-              </Pressable>
-              <Pressable style={styles.nextButton}>
-                <Text style={styles.nextButtonText}>I'm done - next</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
       </View>
     </SafeAreaView>
   );
+}
+
+function NativeVideoRecorder({ onRecorded }: { onRecorded: (video: RecordedVideo) => void }) {
+  const cameraRef = useRef<CameraView>(null);
+  const recordingStartedAt = useRef<number | null>(null);
+  const isRecordingRef = useRef(false);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
+  const [isRecording, setIsRecording] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const hasPermission = cameraPermission?.granted && microphonePermission?.granted;
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
+
+  useEffect(() => {
+    return () => {
+      if (isRecordingRef.current) {
+        cameraRef.current?.stopRecording();
+      }
+    };
+  }, []);
+
+  const requestPermissions = async () => {
+    setError(null);
+    const camera = cameraPermission?.granted
+      ? cameraPermission
+      : await requestCameraPermission();
+    const microphone = microphonePermission?.granted
+      ? microphonePermission
+      : await requestMicrophonePermission();
+
+    if (!camera.granted || !microphone.granted) {
+      setError("Camera and microphone permissions are required to record.");
+    }
+  };
+
+  const startRecording = async () => {
+    if (!cameraRef.current || isRecording) return;
+
+    setError(null);
+    setIsRecording(true);
+    recordingStartedAt.current = Date.now();
+
+    try {
+      const recording = await cameraRef.current.recordAsync();
+      if (!recording?.uri) return;
+
+      onRecorded({
+        uri: recording.uri,
+        createdAt: new Date().toISOString(),
+        durationMs: recordingStartedAt.current ? Date.now() - recordingStartedAt.current : 0,
+        platform: Platform.OS,
+      });
+    } catch {
+      setError("Recording failed. Try again.");
+    } finally {
+      recordingStartedAt.current = null;
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    if (!isRecording) return;
+    cameraRef.current?.stopRecording();
+  };
+
+  if (!cameraPermission || !microphonePermission) {
+    return <RecordingBackdrop title="Preparing camera" body="Checking device access..." />;
+  }
+
+  if (!hasPermission) {
+    return (
+      <>
+        <RecordingBackdrop
+          title="Camera and mic access"
+          body="Remy needs both permissions to record video with audio."
+        />
+        <View style={styles.recordingBottom}>
+          <View style={styles.recordingPanel}>
+            <View style={styles.recordingTitleRow}>
+              <ShieldAlert size={18} color={colors.warm} />
+              <Text style={styles.recordingTitle}>Permissions needed</Text>
+            </View>
+            {error && <Text style={styles.recordingError}>{error}</Text>}
+            <PrimaryButton label="Allow camera and mic" icon={Mic} onPress={requestPermissions} warm />
+          </View>
+        </View>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <CameraView
+        ref={cameraRef}
+        style={StyleSheet.absoluteFill}
+        facing="back"
+        mode="video"
+        mute={false}
+      />
+      <RecordingStatusOverlay isRecording={isRecording} />
+      <View style={styles.recordingBottom}>
+        <View style={styles.recordingPanel}>
+          <View style={styles.recordingTitleRow}>
+            <Camera size={18} color={colors.warm} />
+            <Text style={styles.recordingTitle}>
+              {isRecording ? "Recording video and audio" : "Ready to record"}
+            </Text>
+          </View>
+          <Text style={styles.recordingBody}>
+            {isRecording
+              ? "Keep cooking in frame. Tap stop when you are finished."
+              : "This records a temporary clip only. Leaving this screen clears it."}
+          </Text>
+          {error && <Text style={styles.recordingError}>{error}</Text>}
+          <Pressable
+            style={[styles.recordButton, isRecording ? styles.stopButton : null]}
+            onPress={isRecording ? stopRecording : startRecording}
+          >
+            <View style={styles.recordButtonIcon}>
+              {isRecording ? (
+                <Pause size={18} color={colors.white} />
+              ) : (
+                <Camera size={18} color={colors.white} />
+              )}
+            </View>
+            <Text style={styles.recordButtonText}>
+              {isRecording ? "Stop recording" : "Start recording"}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </>
+  );
+}
+
+function WebVideoRecorder({ onRecorded }: { onRecorded: (video: RecordedVideo) => void }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const recordingStartedAt = useRef<number | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      recorderRef.current?.state === "recording" && recorderRef.current.stop();
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
+
+  const attachStream = (stream: MediaStream) => {
+    streamRef.current = stream;
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  };
+
+  const requestStream = async () => {
+    setError(null);
+
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setError("This browser does not support in-page video recording.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      attachStream(stream);
+      setIsReady(true);
+    } catch {
+      setError("Camera and microphone access was blocked.");
+    }
+  };
+
+  useEffect(() => {
+    requestStream();
+  }, []);
+
+  const startRecording = async () => {
+    if (!streamRef.current) {
+      await requestStream();
+    }
+    if (!streamRef.current || isRecording) return;
+
+    chunksRef.current = [];
+    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
+      ? "video/webm;codecs=vp8,opus"
+      : "video/webm";
+    const recorder = new MediaRecorder(streamRef.current, { mimeType });
+    recorderRef.current = recorder;
+    recordingStartedAt.current = Date.now();
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunksRef.current.push(event.data);
+    };
+    recorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: mimeType });
+      const uri = URL.createObjectURL(blob);
+      onRecorded({
+        uri,
+        createdAt: new Date().toISOString(),
+        durationMs: recordingStartedAt.current ? Date.now() - recordingStartedAt.current : 0,
+        platform: "web",
+        mimeType,
+      });
+      recordingStartedAt.current = null;
+      setIsRecording(false);
+    };
+
+    recorder.start();
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (recorderRef.current?.state === "recording") {
+      recorderRef.current.stop();
+    }
+  };
+
+  return (
+    <>
+      <View style={StyleSheet.absoluteFill}>
+        {React.createElement("video", {
+          ref: (node: HTMLVideoElement | null) => {
+            videoRef.current = node;
+            if (node && streamRef.current) node.srcObject = streamRef.current;
+          },
+          autoPlay: true,
+          muted: true,
+          playsInline: true,
+          style: webVideoStyle,
+        })}
+      </View>
+      {!isReady && (
+        <RecordingBackdrop
+          title="Camera and mic access"
+          body="Allow access in your browser to record video with audio."
+        />
+      )}
+      <RecordingStatusOverlay isRecording={isRecording} />
+      <View style={styles.recordingBottom}>
+        <View style={styles.recordingPanel}>
+          <View style={styles.recordingTitleRow}>
+            <Camera size={18} color={colors.warm} />
+            <Text style={styles.recordingTitle}>
+              {isRecording ? "Recording video and audio" : "Ready to record"}
+            </Text>
+          </View>
+          <Text style={styles.recordingBody}>
+            {isRecording
+              ? "Keep this browser tab open. Tap stop when you are finished."
+              : "This creates a temporary browser clip that clears when you leave."}
+          </Text>
+          {error && <Text style={styles.recordingError}>{error}</Text>}
+          <Pressable
+            style={[
+              styles.recordButton,
+              isRecording ? styles.stopButton : null,
+              !isReady && !error ? styles.recordButtonDisabled : null,
+            ]}
+            onPress={isRecording ? stopRecording : startRecording}
+            disabled={!isReady && !error}
+          >
+            <View style={styles.recordButtonIcon}>
+              {isRecording ? (
+                <Pause size={18} color={colors.white} />
+              ) : (
+                <Camera size={18} color={colors.white} />
+              )}
+            </View>
+            <Text style={styles.recordButtonText}>
+              {isRecording ? "Stop recording" : error ? "Try again" : "Start recording"}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </>
+  );
+}
+
+function RecordedVideoPlayer({
+  recordedVideo,
+  onRecordAgain,
+}: {
+  recordedVideo: RecordedVideo;
+  onRecordAgain: () => void;
+}) {
+  return (
+    <>
+      {Platform.OS === "web" ? (
+        <View style={StyleSheet.absoluteFill}>
+          {React.createElement("video", {
+            src: recordedVideo.uri,
+            controls: true,
+            playsInline: true,
+            style: webVideoStyle,
+          })}
+        </View>
+      ) : (
+        <NativeRecordedVideoPlayer uri={recordedVideo.uri} />
+      )}
+      <View style={styles.recordingBottom}>
+        <View style={styles.recordingPanel}>
+          <View style={styles.recordingTitleRow}>
+            <CheckCircle2 size={18} color={colors.leaf} />
+            <Text style={styles.recordingTitle}>Recording ready</Text>
+          </View>
+          <Text style={styles.recordingBody}>
+            {formatDuration(recordedVideo.durationMs)} captured. This clip is temporary and
+            ready to be wired to save or send later.
+          </Text>
+          <Pressable style={styles.secondaryRecordButton} onPress={onRecordAgain}>
+            <RefreshCw size={16} color={colors.earth950} />
+            <Text style={styles.secondaryRecordButtonText}>Record again</Text>
+          </Pressable>
+        </View>
+      </View>
+    </>
+  );
+}
+
+function NativeRecordedVideoPlayer({ uri }: { uri: string }) {
+  const player = useVideoPlayer(uri, (playerInstance) => {
+    playerInstance.loop = true;
+  });
+
+  return (
+    <VideoView
+      player={player}
+      style={StyleSheet.absoluteFill}
+      contentFit="cover"
+      nativeControls
+    />
+  );
+}
+
+function RecordingBackdrop({ title, body }: { title: string; body: string }) {
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <LinearGradient
+        colors={["#5a4838", "#241a12", "#0a0604"]}
+        start={{ x: 0.15, y: 0.15 }}
+        end={{ x: 0.9, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={styles.recordingBackdropContent}>
+        <View style={styles.cameraIconLarge}>
+          <Camera size={28} color={colors.warm} />
+        </View>
+        <Text style={styles.recordingBackdropTitle}>{title}</Text>
+        <Text style={styles.recordingBackdropBody}>{body}</Text>
+      </View>
+    </View>
+  );
+}
+
+function RecordingStatusOverlay({ isRecording }: { isRecording: boolean }) {
+  if (!isRecording) return null;
+
+  return (
+    <View style={styles.recordingStatus}>
+      <View style={styles.recordingDot} />
+      <Text style={styles.recordingStatusText}>Recording</Text>
+    </View>
+  );
+}
+
+function formatDuration(durationMs: number) {
+  const totalSeconds = Math.max(0, Math.round(durationMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function FeedbackScreen({ nav }: { nav: Nav }) {
@@ -1199,6 +1573,13 @@ function Bullet({ children }: { children: React.ReactNode }) {
   );
 }
 
+const webVideoStyle: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  backgroundColor: colors.earth950,
+};
+
 const styles = StyleSheet.create({
   loading: { flex: 1, backgroundColor: colors.canvas },
   safe: { flex: 1, backgroundColor: colors.canvas },
@@ -1728,6 +2109,7 @@ const styles = StyleSheet.create({
     top: 24,
     left: 20,
     right: 20,
+    zIndex: 2,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
@@ -1751,6 +2133,130 @@ const styles = StyleSheet.create({
   dotWarm: { width: 6, backgroundColor: colors.warm },
   dotActive: { width: 16, backgroundColor: colors.white },
   dotMuted: { width: 6, backgroundColor: "rgba(255,255,255,0.3)" },
+  recordingBottom: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    bottom: 24,
+    zIndex: 2,
+  },
+  recordingPanel: {
+    gap: 12,
+    padding: 18,
+    borderRadius: 24,
+    backgroundColor: "rgba(252,250,247,0.94)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.5)",
+  },
+  recordingTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  recordingTitle: {
+    flex: 1,
+    fontFamily: "InstrumentSans_600SemiBold",
+    fontSize: 15,
+    color: colors.earth950,
+  },
+  recordingBody: {
+    fontFamily: "InstrumentSans_400Regular",
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.earth600,
+  },
+  recordingError: {
+    fontFamily: "InstrumentSans_500Medium",
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.warm,
+  },
+  recordButton: {
+    minHeight: 52,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    borderRadius: 18,
+    backgroundColor: colors.warm,
+  },
+  stopButton: { backgroundColor: colors.earth950 },
+  recordButtonDisabled: { opacity: 0.55 },
+  recordButtonIcon: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+  recordButtonText: {
+    fontFamily: "InstrumentSans_600SemiBold",
+    fontSize: 14,
+    color: colors.white,
+  },
+  secondaryRecordButton: {
+    minHeight: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: 16,
+    backgroundColor: colors.earth100,
+  },
+  secondaryRecordButtonText: {
+    fontFamily: "InstrumentSans_600SemiBold",
+    fontSize: 14,
+    color: colors.earth950,
+  },
+  recordingStatus: {
+    position: "absolute",
+    top: 92,
+    alignSelf: "center",
+    zIndex: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(0,0,0,0.42)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+  },
+  recordingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.warm,
+  },
+  recordingStatusText: {
+    fontFamily: "InstrumentSans_600SemiBold",
+    fontSize: 11,
+    color: colors.white,
+  },
+  recordingBackdropContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 28,
+  },
+  recordingBackdropTitle: {
+    marginTop: 20,
+    textAlign: "center",
+    fontFamily: "InstrumentSerif_400Regular",
+    fontSize: 28,
+    color: colors.white,
+  },
+  recordingBackdropBody: {
+    marginTop: 8,
+    maxWidth: 320,
+    textAlign: "center",
+    fontFamily: "InstrumentSans_400Regular",
+    fontSize: 13,
+    lineHeight: 19,
+    color: "rgba(255,255,255,0.72)",
+  },
   sideControls: {
     position: "absolute",
     right: 16,

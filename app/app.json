@@ -8,16 +8,34 @@
     "splash": {
       "backgroundColor": "#fcfaf7"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Remy uses your camera to scan ingredients and support cooking guidance.",
+        "NSMicrophoneUsageDescription": "Remy uses your microphone to record audio with cooking videos.",
         "NSPhotoLibraryUsageDescription": "Remy lets you attach kitchen photos from your library."
       }
     },
     "android": {
-      "permissions": ["CAMERA", "READ_MEDIA_IMAGES"]
-    }
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Remy uses your camera to record cooking videos and scan ingredients.",
+          "microphonePermission": "Remy uses your microphone to record audio with cooking videos.",
+          "recordAudioAndroid": true
+        }
+      ],
+      "expo-video"
+    ]
   }
 }
