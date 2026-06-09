@@ -1,0 +1,15 @@
+export const colors = {
+  canvas: "#fcfaf7",
+  earth950: "#332b25",
+  earth900: "#443a32",
+  earth800: "#5e534b",
+  earth600: "#8a8177",
+  earth400: "#bdb7ae",
+  earth200: "#e7e1d8",
+  earth100: "#f4eee6",
+  white: "#ffffff",
+  warm: "#c66a2b",
+  warmSoft: "#faeadb",
+  leaf: "#3f8a63",
+  leafSoft: "#e9f4ed",
+};
