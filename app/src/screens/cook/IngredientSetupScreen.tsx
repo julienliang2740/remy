@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Camera, Plus, Search, Sparkles, X } from "lucide-react-native";
 import { Image, Pressable, Text, TextInput, View } from "react-native";
 
@@ -9,7 +10,6 @@ import { pantry, tools } from "../../constants/cooking";
 import { colors } from "../../constants/theme";
 import { styles } from "../../styles/styles";
 import type { Nav } from "../../types/navigation";
-import { useState } from "react";
 
 export function IngredientSetupScreen({ nav }: { nav: Nav }) {
   const {
@@ -38,6 +38,10 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
     nav("recipe");
   };
 
+  const runDemoScan = async () => {
+    await scanCurrentShots();
+  };
+
   return (
     <Shell nav={nav} active="setup">
       <Text style={styles.eyebrow}>Step 1 of 2</Text>
@@ -55,7 +59,7 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
             <Text style={styles.scanEyebrow}>Fastest way</Text>
             <Text style={styles.scanTitle}>Scan your fridge & pantry</Text>
             <Text style={styles.scanBody}>
-              Snap a few photos - Remy figures out what you can cook.
+              Snap a few photos - Remy adds likely ingredients to your basket.
             </Text>
           </View>
         </View>
@@ -76,6 +80,19 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
         )}
       </Pressable>
 
+      <View style={[styles.chipWrap, styles.mt12]}>
+        <Pressable
+          style={styles.lightChip}
+          onPress={runDemoScan}
+          disabled={isScanning}
+          accessibilityLabel="Use demo scan"
+        >
+          <Text style={styles.lightChipText}>
+            {isScanning ? "Scanning..." : "Use demo scan"}
+          </Text>
+        </Pressable>
+      </View>
+
       <View style={styles.dividerRow}>
         <View style={styles.divider} />
         <Text style={styles.dividerText}>or build it by hand</Text>
@@ -85,7 +102,7 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
       <View style={styles.searchBox}>
         <Search size={16} color={colors.earth600} />
         <TextInput
-          placeholder="Search or add an ingredient"
+          placeholder="Add an ingredient, e.g. mushrooms"
           placeholderTextColor={colors.earth400}
           style={styles.searchInput}
           value={ingredientInput}
@@ -93,7 +110,15 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
           onSubmitEditing={addTypedIngredient}
           returnKeyType="done"
         />
-        <Pressable style={styles.addButton} onPress={addTypedIngredient}>
+        <Pressable
+          style={[
+            styles.addButton,
+            ingredientInput.trim() ? null : styles.recordButtonDisabled,
+          ]}
+          onPress={addTypedIngredient}
+          disabled={!ingredientInput.trim()}
+          accessibilityLabel="Add ingredient"
+        >
           <Plus size={16} color={colors.earth800} />
         </Pressable>
       </View>
@@ -114,7 +139,7 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
 
       {detectedIngredients.length > 0 && (
         <View style={styles.mt20}>
-          <SectionTitle title="Detected from scan" />
+          <SectionTitle title="Added from scan" />
           <View style={styles.chipWrap}>
             {detectedIngredients.map((ingredient) => (
               <View key={ingredient.name} style={styles.lightChip}>
@@ -163,7 +188,7 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
         <Text style={styles.smallCenter}>
           {isScanning
             ? "Scanning your photos for ingredients."
-            : "Remy will pick something doable with what you've shown it."}
+            : "Recipe ideas use your tapped, typed, and scanned ingredients."}
         </Text>
       </View>
 

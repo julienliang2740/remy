@@ -27,6 +27,7 @@ export type RecipeSuggestion = {
   title: string;
   description: string;
   emoji: string;
+  sourceIngredients: string[];
   time: string;
   level: string;
   skill: string;

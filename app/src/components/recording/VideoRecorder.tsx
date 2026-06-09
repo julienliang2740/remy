@@ -127,7 +127,7 @@ export function NativeVideoRecorder({
           <Text style={styles.recordingBody}>
             {isRecording
               ? "Keep cooking in frame. Tap stop when you are finished."
-              : "This records a temporary clip only. Leaving this screen clears it."}
+              : "This is the watch-you-cook placeholder. It records a temporary clip only; leaving this screen clears it."}
           </Text>
           {error && <Text style={styles.recordingError}>{error}</Text>}
           <Pressable
@@ -276,7 +276,7 @@ export function WebVideoRecorder({
           <Text style={styles.recordingBody}>
             {isRecording
               ? "Keep this browser tab open. Tap stop when you are finished."
-              : "This creates a temporary browser clip that clears when you leave."}
+              : "This is the watch-you-cook placeholder. It creates a temporary browser clip that clears when you leave."}
           </Text>
           {error && <Text style={styles.recordingError}>{error}</Text>}
           <Pressable

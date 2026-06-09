@@ -8,7 +8,6 @@ import {
   RecordedVideoPlayer,
   WebVideoRecorder,
 } from "../../components/recording/VideoRecorder";
-import { colors } from "../../constants/theme";
 import { useCookingSession } from "../../context/CookingSessionContext";
 import { createCookingGuideSession } from "../../services/cookingService";
 import { styles } from "../../styles/styles";
@@ -18,7 +17,7 @@ import type { Nav } from "../../types/navigation";
 export function LiveCookingScreen({ nav }: { nav: Nav }) {
   const { recipe } = useCookingSession();
   const [recordedVideo, setRecordedVideo] = useState<RecordedVideo | null>(null);
-  const [guideStatusLabel, setGuideStatusLabel] = useState("Record video + audio");
+  const [guideStatusLabel, setGuideStatusLabel] = useState("Watch placeholder");
 
   useEffect(() => {
     let active = true;

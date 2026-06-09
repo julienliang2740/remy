@@ -1,5 +1,6 @@
 import { ArrowLeft, ChefHat, Flame, Timer, Utensils } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Shell } from "../../components/layout/Shell";
@@ -11,6 +12,7 @@ import type { Nav } from "../../types/navigation";
 
 export function RecipeScreen({ nav }: { nav: Nav }) {
   const { recipe } = useCookingSession();
+  const [saved, setSaved] = useState(false);
 
   return (
     <Shell nav={nav} active="setup" bleed>
@@ -29,6 +31,19 @@ export function RecipeScreen({ nav }: { nav: Nav }) {
       <View style={styles.recipeBody}>
         <Text style={styles.serifSubTitle}>{recipe.title}</Text>
         <Text style={[styles.bodyText, styles.mt8]}>{recipe.description}</Text>
+
+        {recipe.sourceIngredients.length > 0 && (
+          <View style={styles.mt20}>
+            <SectionTitle title="Built from your basket" />
+            <View style={styles.chipWrap}>
+              {recipe.sourceIngredients.map((item) => (
+                <View key={item} style={styles.lightChip}>
+                  <Text style={styles.lightChipText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         <View style={[styles.metaRow, styles.mt20]}>
           <Meta icon={Timer} label="Time" value={recipe.time} />
@@ -60,8 +75,10 @@ export function RecipeScreen({ nav }: { nav: Nav }) {
 
         <View style={styles.mt32}>
           <PrimaryButton label="Enter live mode" onPress={() => nav("live")} warm />
-          <Pressable style={styles.textButton}>
-            <Text style={styles.textButtonText}>Save for later</Text>
+          <Pressable style={styles.textButton} onPress={() => setSaved(true)}>
+            <Text style={styles.textButtonText}>
+              {saved ? "Saved for later" : "Save for later"}
+            </Text>
           </Pressable>
         </View>
       </View>

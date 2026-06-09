@@ -48,6 +48,7 @@ function buildRecipeSuggestion(ingredients: string[]): RecipeSuggestion {
     description:
       "A buttery, garlicky weeknight bowl. We'll focus on getting the garlic golden, not burnt.",
     emoji: hasPasta ? "🍝" : "🍳",
+    sourceIngredients: allIngredients,
     time: "20 min",
     level: "Easy+",
     skill: "Saute",
@@ -90,7 +91,7 @@ export async function createCookingGuideSession(
   recipe: RecipeSuggestion,
 ): Promise<CookingGuideSession> {
   return {
-    statusLabel: "Record video + audio",
+    statusLabel: "Watch placeholder",
     coachPrompt: recipe.coachNote,
     mode: "recording-placeholder",
   };
