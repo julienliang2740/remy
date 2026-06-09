@@ -16,14 +16,20 @@ export function KitchenCamera({
   shots,
   setShots,
   onDone,
+  isDoneLoading,
+  scanError,
 }: {
   open: boolean;
   onClose: () => void;
   shots: CapturedShot[];
   setShots: React.Dispatch<React.SetStateAction<CapturedShot[]>>;
   onDone?: () => void | Promise<void>;
+  isDoneLoading?: boolean;
+  scanError?: string | null;
 }) {
-  const [error, setError] = React.useState<string | null>(null);
+  const [permissionError, setPermissionError] = React.useState<string | null>(null);
+  const [doneBusy, setDoneBusy] = React.useState(false);
+  const doneDisabled = shots.length === 0 || Boolean(isDoneLoading) || doneBusy;
 
   const addAssets = (assets: ImagePicker.ImagePickerAsset[]) => {
     setShots((current) => {
@@ -37,10 +43,10 @@ export function KitchenCamera({
   };
 
   const takePhoto = async () => {
-    setError(null);
+    setPermissionError(null);
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      setError("Camera is blocked");
+      setPermissionError("Camera is blocked");
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -51,10 +57,10 @@ export function KitchenCamera({
   };
 
   const uploadPhotos = async () => {
-    setError(null);
+    setPermissionError(null);
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      setError("Photo library is blocked");
+      setPermissionError("Photo library is blocked");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -66,8 +72,17 @@ export function KitchenCamera({
   };
 
   const handleDone = async () => {
-    await onDone?.();
-    onClose();
+    if (doneDisabled) return;
+
+    setDoneBusy(true);
+    try {
+      await onDone?.();
+      onClose();
+    } catch {
+      // The parent context stores the visible scan error.
+    } finally {
+      setDoneBusy(false);
+    }
   };
 
   return (
@@ -85,17 +100,20 @@ export function KitchenCamera({
           <FauxCamera />
           <View style={styles.permissionPanel}>
             <View style={styles.cameraIconLarge}>
-              {error ? (
+              {permissionError ? (
                 <ShieldAlert size={28} color={colors.warm} />
               ) : (
                 <Camera size={28} color={colors.warm} />
               )}
             </View>
-            <Text style={styles.cameraTitle}>{error ? error : "Show Remy your kitchen"}</Text>
+            <Text style={styles.cameraTitle}>
+              {permissionError ? permissionError : "Show Remy your kitchen"}
+            </Text>
             <Text style={styles.cameraBody}>
               Snap a few photos - the fridge, the pantry, what's on the counter.
               Remy will piece together what you can cook.
             </Text>
+            {scanError && <Text style={styles.cameraErrorText}>{scanError}</Text>}
             <View style={styles.cameraBullets}>
               <Bullet>Photos never leave your device until you tap Done.</Bullet>
               <Bullet>You can retake or remove any shot.</Bullet>
@@ -133,20 +151,21 @@ export function KitchenCamera({
             </View>
           </Pressable>
           <Pressable
-            style={[styles.doneButton, shots.length === 0 ? styles.doneDisabled : null]}
-            onPress={shots.length > 0 ? handleDone : undefined}
+            style={[styles.doneButton, doneDisabled ? styles.doneDisabled : null]}
+            onPress={doneDisabled ? undefined : handleDone}
+            disabled={doneDisabled}
           >
             <Text
               style={[
                 styles.doneText,
-                shots.length === 0 ? styles.doneTextDisabled : null,
+                doneDisabled ? styles.doneTextDisabled : null,
               ]}
             >
-              Done
+              {isDoneLoading || doneBusy ? "Scanning" : "Done"}
             </Text>
             <CheckCircle2
               size={16}
-              color={shots.length > 0 ? colors.white : "rgba(255,255,255,0.4)"}
+              color={doneDisabled ? "rgba(255,255,255,0.4)" : colors.white}
             />
           </Pressable>
         </View>

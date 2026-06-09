@@ -4,6 +4,7 @@ import { defaultSelectedIngredients } from "../constants/cooking";
 import {
   defaultRecipeSuggestion,
   generateRecipe,
+  isCookingServiceConfigError,
   scanIngredients,
 } from "../services/cookingService";
 import type {
@@ -22,6 +23,8 @@ type CookingSessionContextValue = {
   recipe: RecipeSuggestion;
   isScanning: boolean;
   isGeneratingRecipe: boolean;
+  scanError: string | null;
+  recipeError: string | null;
   toggleIngredient: (name: string) => void;
   addCustomIngredient: (name: string) => void;
   scanCurrentShots: () => Promise<ScanIngredientsResponse>;
@@ -55,6 +58,8 @@ export function CookingSessionProvider({ children }: { children: React.ReactNode
   const [recipe, setRecipe] = useState<RecipeSuggestion>(defaultRecipeSuggestion);
   const [isScanning, setIsScanning] = useState(false);
   const [isGeneratingRecipe, setIsGeneratingRecipe] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [recipeError, setRecipeError] = useState<string | null>(null);
 
   const toggleIngredient = useCallback((name: string) => {
     setSelectedIngredients((current) => {
@@ -79,7 +84,12 @@ export function CookingSessionProvider({ children }: { children: React.ReactNode
   }, []);
 
   const scanCurrentShots = useCallback(async () => {
+    if (isScanning) {
+      return { detectedIngredients };
+    }
+
     setIsScanning(true);
+    setScanError(null);
     try {
       const response = await scanIngredients({ shots });
       setDetectedIngredients(response.detectedIngredients);
@@ -90,13 +100,21 @@ export function CookingSessionProvider({ children }: { children: React.ReactNode
         ),
       );
       return response;
+    } catch (error) {
+      setScanError(toUserErrorMessage(error, "We couldn't scan those photos. Try another shot."));
+      throw error;
     } finally {
       setIsScanning(false);
     }
-  }, [shots]);
+  }, [detectedIngredients, isScanning, shots]);
 
   const generateCurrentRecipe = useCallback(async () => {
+    if (isGeneratingRecipe) {
+      return recipe;
+    }
+
     setIsGeneratingRecipe(true);
+    setRecipeError(null);
     try {
       const nextRecipe = await generateRecipe({
         selectedIngredients,
@@ -105,10 +123,21 @@ export function CookingSessionProvider({ children }: { children: React.ReactNode
       });
       setRecipe(nextRecipe);
       return nextRecipe;
+    } catch (error) {
+      setRecipeError(
+        toUserErrorMessage(error, "We couldn't suggest a recipe from this basket yet."),
+      );
+      throw error;
     } finally {
       setIsGeneratingRecipe(false);
     }
-  }, [customIngredients, detectedIngredients, selectedIngredients]);
+  }, [
+    customIngredients,
+    detectedIngredients,
+    isGeneratingRecipe,
+    recipe,
+    selectedIngredients,
+  ]);
 
   const value = useMemo(
     () => ({
@@ -120,6 +149,8 @@ export function CookingSessionProvider({ children }: { children: React.ReactNode
       recipe,
       isScanning,
       isGeneratingRecipe,
+      scanError,
+      recipeError,
       toggleIngredient,
       addCustomIngredient,
       scanCurrentShots,
@@ -131,7 +162,9 @@ export function CookingSessionProvider({ children }: { children: React.ReactNode
       generateCurrentRecipe,
       isGeneratingRecipe,
       isScanning,
+      recipeError,
       recipe,
+      scanError,
       scanCurrentShots,
       selectedIngredients,
       shots,
@@ -152,4 +185,12 @@ export function useCookingSession() {
   }
 
   return value;
+}
+
+function toUserErrorMessage(error: unknown, fallback: string): string {
+  if (isCookingServiceConfigError(error)) {
+    return "Remy is set to an unavailable AI provider. Switch the app config back to mock mode.";
+  }
+
+  return fallback;
 }

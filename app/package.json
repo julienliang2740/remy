@@ -7,7 +7,10 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web --port 8082"
+    "web": "expo start --web --port 8082",
+    "typecheck": "tsc --noEmit",
+    "test:services": "tsc --module commonjs --target ES2020 --lib ES2020,DOM --moduleResolution node --esModuleInterop --skipLibCheck --rootDir src --outDir dist/service-build src/services/ai/service.test.ts && node dist/service-build/services/ai/service.test.js",
+    "demo:services": "tsc --module commonjs --target ES2020 --lib ES2020,DOM --moduleResolution node --esModuleInterop --skipLibCheck --rootDir src --outDir dist/service-build src/services/ai/serviceDemo.ts && node dist/service-build/services/ai/serviceDemo.js"
   },
   "dependencies": {
     "@expo-google-fonts/instrument-sans": "^0.4.1",

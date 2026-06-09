@@ -19,6 +19,8 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
     detectedIngredients,
     isScanning,
     isGeneratingRecipe,
+    scanError,
+    recipeError,
     toggleIngredient,
     addCustomIngredient,
     scanCurrentShots,
@@ -34,12 +36,24 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
   };
 
   const suggestRecipe = async () => {
-    await generateCurrentRecipe();
-    nav("recipe");
+    if (isGeneratingRecipe) return;
+
+    try {
+      await generateCurrentRecipe();
+      nav("recipe");
+    } catch {
+      // Context owns the user-facing error state.
+    }
   };
 
   const runDemoScan = async () => {
-    await scanCurrentShots();
+    if (isScanning) return;
+
+    try {
+      await scanCurrentShots();
+    } catch {
+      // Context owns the user-facing error state.
+    }
   };
 
   return (
@@ -50,7 +64,11 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
         Snap your fridge, or tap anything you've got - even loosely.
       </Text>
 
-      <Pressable style={styles.scanCard} onPress={() => setCameraOpen(true)}>
+      <Pressable
+        style={[styles.scanCard, isScanning ? styles.recordButtonDisabled : null]}
+        onPress={() => setCameraOpen(true)}
+        disabled={isScanning}
+      >
         <View style={styles.rowTop}>
           <View style={styles.warmSolidBox}>
             <Camera size={20} color={colors.white} />
@@ -92,6 +110,7 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
           </Text>
         </Pressable>
       </View>
+      {scanError && <Text style={styles.errorText}>{scanError}</Text>}
 
       <View style={styles.dividerRow}>
         <View style={styles.divider} />
@@ -185,6 +204,7 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
           onPress={suggestRecipe}
           dark
         />
+        {recipeError && <Text style={styles.errorCenter}>{recipeError}</Text>}
         <Text style={styles.smallCenter}>
           {isScanning
             ? "Scanning your photos for ingredients."
@@ -197,6 +217,8 @@ export function IngredientSetupScreen({ nav }: { nav: Nav }) {
         onClose={() => setCameraOpen(false)}
         shots={shots}
         setShots={setShots}
+        isDoneLoading={isScanning}
+        scanError={scanError}
         onDone={async () => {
           await scanCurrentShots();
         }}
