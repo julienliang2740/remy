@@ -1,6 +1,5 @@
 ﻿import type { AnchorHTMLAttributes } from "react";
 import {
-  ArrowRight,
   Camera,
   ChefHat,
   ChevronDown,
@@ -9,11 +8,11 @@ import {
   HeartHandshake,
   Leaf,
   MessageCircle,
+  Package,
   Receipt,
   Shield,
   ShoppingBasket,
   Sparkles,
-  Sprout,
   Timer,
   TrendingDown,
   Utensils,
@@ -98,8 +97,7 @@ export default function LandingPage() {
         <Hero />
         <ProblemStrip />
         <HowItWorks />
-        <FeatureRows />
-        <Journey />
+        <MetricsSection />
         <TrustSection />
         <FAQ />
         <FinalCTA />
@@ -118,38 +116,32 @@ function SiteNav() {
       className="sticky top-0 z-40 border-b border-earth-200/60 bg-canvas/80 backdrop-blur-xl"
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 md:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid size-8 place-items-center rounded-xl bg-earth-950 text-canvas">
-            <ChefHat className="size-4" />
-          </div>
-          <span className="font-serif text-2xl leading-none">Remy</span>
-        </Link>
-        <nav className="hidden items-center gap-8 text-sm text-earth-700 md:flex">
-          <a href="#how" className="transition-colors hover:text-earth-950">
-            How it works
-          </a>
-          <a href="#features" className="transition-colors hover:text-earth-950">
-            Features
-          </a>
-          <a href="#trust" className="transition-colors hover:text-earth-950">
-            Trust
-          </a>
-          <a href="#faq" className="transition-colors hover:text-earth-950">
-            FAQ
-          </a>
-        </nav>
+        <div className="flex items-center gap-8">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="grid size-8 place-items-center rounded-xl bg-earth-950 text-canvas">
+              <ChefHat className="size-4" />
+            </div>
+            <span className="font-serif text-2xl leading-none">Remy</span>
+          </Link>
+          <nav className="hidden items-center gap-8 text-sm text-earth-700 md:flex">
+            <a href="#how" className="transition-colors hover:text-earth-950">
+              How it works
+            </a>
+            <a href="#metrics" className="transition-colors hover:text-earth-950">
+              Signals
+            </a>
+            <a href="#faq" className="transition-colors hover:text-earth-950">
+              FAQ
+            </a>
+          </nav>
+        </div>
         <div className="flex items-center gap-2">
           <Link
-            to="/app"
-            className="hidden rounded-full px-3 py-2 text-sm font-medium text-earth-800 hover:bg-earth-100 sm:inline-flex"
-          >
-            See the app
-          </Link>
-          <Link
-            to="/app/onboarding"
+            to="/downloads/remy-preview-package.svg"
+            download
             className="inline-flex items-center gap-1.5 rounded-full bg-earth-950 px-4 py-2 text-sm font-semibold text-canvas transition-transform active:scale-95"
           >
-            Open Remy <ArrowRight className="size-3.5" />
+            Get Remy <Package className="size-3.5" />
           </Link>
         </div>
       </div>
@@ -171,25 +163,21 @@ function Hero() {
     >
       <div className="mx-auto grid min-h-[calc(100svh-4rem)] w-full max-w-6xl items-center gap-8 px-5 py-8 sm:py-10 md:grid-cols-[1.05fr_1fr] md:gap-8 md:px-8 lg:py-12">
         <Reveal className="space-y-5 lg:space-y-6" delay={120}>
-          <span className="inline-flex items-center gap-2 rounded-full bg-warm-soft px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-warm ring-1 ring-warm/20">
-            <Sparkles className="size-3" /> AI co-pilot · cooking, first
-          </span>
+          {/* <span className="inline-flex items-center gap-2 rounded-full bg-warm-soft px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-warm ring-1 ring-warm/20">
+            <Sparkles className="size-3" /> Guiding you end-to-end
+          </span> */}
           <h1 className="text-balance font-serif text-[2.35rem] leading-[1.02] sm:text-5xl md:text-6xl lg:text-[4rem]">
-            Cook with quiet
-            <br />
-            confidence.
+            Your Kitchen Co-Pilot
           </h1>
           <p className="max-w-[50ch] text-pretty text-sm leading-relaxed text-earth-700 sm:text-base md:text-[1.05rem]">
-            Remy is a calm AI coach for your kitchen. It sees what you have, guides you through the
-            cook with gentle real-time tips, and helps you spend less at the grocery store ” without
-            ever making you feel watched.
+            Remy is the AI coach for your kitchen. It works with ingredients you already have, guides you with real-time tips, and helps you spend less at the grocery store.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <Link
               to="/app/onboarding"
               className="inline-flex items-center gap-2 rounded-2xl bg-earth-950 px-6 py-3.5 text-sm font-semibold text-canvas transition-transform active:scale-[0.98]"
             >
-              <Flame className="size-4" /> Start cooking
+              <Flame className="size-4" /> Get Remy
             </Link>
             <a
               href="#how"
@@ -202,9 +190,9 @@ function Hero() {
             <span className="inline-flex items-center gap-1.5">
               <Shield className="size-3.5" /> Camera footage stays on device
             </span>
-            <span className="inline-flex items-center gap-1.5">
+            {/* <span className="inline-flex items-center gap-1.5">
               <Leaf className="size-3.5" /> Free during beta
-            </span>
+            </span> */}
           </div>
         </Reveal>
 
@@ -215,12 +203,19 @@ function Hero() {
         >
           {/* Tilted background phone */}
           <div className="absolute right-0 top-6 hidden h-full w-[80%] -rotate-6 sm:block">
-            <PhoneFrame tone="dark" />
+            <PhoneFrame tone="dark">
+              <img
+                src="/images/opening1.jpg"
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover"
+              />
+            </PhoneFrame>
           </div>
           {/* Foreground phone */}
           <div className="absolute left-0 top-0 h-full w-[78%] rotate-[-2deg] sm:left-2">
             <PhoneFrame>
-              <LiveCookingMock />
+              <LiveCookingImageScreen />
             </PhoneFrame>
           </div>
           {/* Floating swap card */}
@@ -242,25 +237,30 @@ function Hero() {
 const problems = [
   {
     icon: ShoppingBasket,
-    title: "Empty fridge, blank mind",
-    body: "You have ingredients, you just can't see the meal.",
+    title: "Full fridge, blank mind",
+    body: "You have the ingredients but can't see the meal.",
   },
-  { icon: Receipt, title: "Wasted ingredients", body: "Half a bunch of herbs goes brown again." },
+  { icon: Receipt, title: "Ingredient tragedy", body: "Don't have all the recipe ingredients? Good luck." },
   {
     icon: MessageCircle,
-    title: "Stuck mid-recipe",
-    body: "Is the pan hot enough? Is this burning? Recipes won't say.",
+    title: "Recipes can't guide you",
+    body: "Am I stirring properly? Is the food burning? You're on your own.",
   },
   {
     icon: Wallet,
-    title: "Grocery creep",
-    body: "Twenty dollars for an ingredient you'll use twice.",
+    title: "Creeping bills",
+    body: "Twenty dollars for an ingredient you'll use once (if ever).",
   },
 ];
 
 function ProblemStrip() {
   return (
-    <Section eyebrow="The everyday friction" title="Cooking shouldn't feel like a quiz.">
+    <Section
+      id="problem"
+      eyebrow=""
+      title="Cooking is Hard"
+      description="and recipes can't help"
+    >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {problems.map((p, i) => {
           const Icon = p.icon;
@@ -285,56 +285,11 @@ function ProblemStrip() {
 
 /* ---------------- How it works ---------------- */
 
-function HowItWorks() {
-  const steps = [
-    {
-      n: "01",
-      title: "Tell us what you have",
-      body: "Snap your fridge or tap a few items. Remy figures out what you can realistically make tonight.",
-      mock: <SetupMock />,
-    },
-    {
-      n: "02",
-      title: "Cook with a calm coach",
-      body: "Point your camera at the pan. Remy nudges in the moment ” heat down, garlic ready, sauce glossy.",
-      mock: <CameraMock />,
-    },
-    {
-      n: "03",
-      title: "Reflect & save money",
-      body: "A warm recap with wins and one small thing to try. Plus cheaper swaps for next week's shop.",
-      mock: <FeedbackMock />,
-    },
-  ];
-  return (
-    <Section id="how" eyebrow="How Remy works" title="Three moments, one calm flow.">
-      <div className="grid gap-6 md:grid-cols-3">
-        {steps.map((s, i) => (
-          <Reveal key={s.n} className="space-y-5" delay={i * 100}>
-            <div className="overflow-hidden rounded-[28px] bg-earth-100/60 p-5 ring-1 ring-black/5">
-              {s.mock}
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-warm">
-                {s.n}
-              </p>
-              <h3 className="mt-1.5 font-serif text-2xl leading-tight">{s.title}</h3>
-              <p className="mt-2 text-[14px] leading-relaxed text-earth-600">{s.body}</p>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-/* ---------------- Feature rows ---------------- */
-
-const features = [
+const howPanels = [
   {
-    eyebrow: "Recipes from what you have",
-    title: "No more 'what's for dinner?'",
-    body: "Remy looks at your pantry photos and the chips you've tapped, then suggests something doable ” not aspirational. Always with a realistic time and skill level.",
+    eyebrow: "No more 'what's for dinner?'",
+    title: "Recipes start from what you have",
+    body: "Remy looks at your kitchen and fridge photos and suggests something doable, not aspirational. Everything is planned for a realistic time and skill level.",
     bullets: [
       "Photo-based ingredient detection",
       "Filters for time, mood & skill",
@@ -388,23 +343,23 @@ const features = [
   },
 ];
 
-function FeatureRows() {
+function HowItWorks() {
   return (
-    <Reveal as="section" id="features" className="border-t border-earth-200/60 bg-earth-100/40">
+    <Reveal as="section" id="how" className="border-t border-earth-200/60 bg-earth-100/40">
       <div className="mx-auto w-full max-w-6xl px-5 py-20 md:px-8 md:py-28">
         <Reveal as="header" className="mx-auto max-w-2xl text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-warm">
-            What Remy does
+            Built for the way you actually cook
           </p>
           <h2 className="mt-3 font-serif text-4xl leading-tight md:text-5xl">
-            Built for the way you actually cook.
+            How Remy Works
           </h2>
         </Reveal>
 
         <div className="mt-16 space-y-20 md:space-y-28">
-          {features.map((f, i) => (
+          {howPanels.map((panel, i) => (
             <Reveal
-              key={f.title}
+              key={panel.title}
               delay={80}
               className={cn(
                 "grid items-center gap-10 md:grid-cols-2 md:gap-16",
@@ -413,22 +368,22 @@ function FeatureRows() {
             >
               <div className="space-y-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-warm">
-                  {f.eyebrow}
+                  {panel.eyebrow}
                 </p>
                 <h3 className="text-balance font-serif text-3xl leading-tight md:text-4xl">
-                  {f.title}
+                  {panel.title}
                 </h3>
-                <p className="text-pretty text-base leading-relaxed text-earth-700">{f.body}</p>
+                <p className="text-pretty text-base leading-relaxed text-earth-700">{panel.body}</p>
                 <ul className="space-y-2 pt-1">
-                  {f.bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2.5 text-sm text-earth-800">
+                  {panel.bullets.map((bullet) => (
+                    <li key={bullet} className="flex items-start gap-2.5 text-sm text-earth-800">
                       <span className="mt-2 size-1.5 shrink-0 rounded-full bg-warm" />
-                      {b}
+                      {bullet}
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="relative">{f.mock}</div>
+              <div className="relative">{panel.mock}</div>
             </Reveal>
           ))}
         </div>
@@ -437,62 +392,58 @@ function FeatureRows() {
   );
 }
 
-/* ---------------- Example journey ---------------- */
+/* ---------------- Metrics ---------------- */
 
-const beats = [
+const metrics = [
   {
-    time: "6:42 PM",
-    title: "Opens the app, tired.",
-    body: "Remy greets her by name. 'What do you have on hand?'",
+    icon: TrendingDown,
+    value: "$32",
+    label: "saved this month",
+    body: "Ingredient swaps and smarter shops that still taste good.",
   },
   {
-    time: "6:43 PM",
-    title: "Snaps the fridge.",
-    body: "Three photos. Remy identifies pasta, garlic, half a lemon, parmesan, wilted spinach.",
+    icon: Timer,
+    value: "20 min",
+    label: "average weeknight cook",
+    body: "Realistic meals for the nights when energy is low.",
   },
   {
-    time: "6:44 PM",
-    title: "Picks a 20-minute pasta.",
-    body: "Easy+ difficulty. The coach quietly notes today's skill: garlic that's golden, not burnt.",
+    icon: Camera,
+    value: "3 photos",
+    label: "to understand the kitchen",
+    body: "Fridge, pantry, and counter become a starting point.",
   },
   {
-    time: "6:51 PM",
-    title: "Cooks with the coach.",
-    body: "'Ease the heat down a notch.' She does. The garlic stays sweet. She smiles.",
-  },
-  {
-    time: "7:09 PM",
-    title: "A calm recap.",
-    body: "One win, one tiny thing to try. And a $4 swap for next week's pine nuts.",
+    icon: HeartHandshake,
+    value: "1 note",
+    label: "after each cook",
+    body: "One gentle thing to celebrate or try next time.",
   },
 ];
 
-function Journey() {
+function MetricsSection() {
   return (
-    <Section eyebrow="A Tuesday with Remy" title="A small story.">
-      <div className="relative mx-auto max-w-3xl">
-        <div className="absolute left-[14px] top-2 bottom-2 w-px bg-earth-200 md:left-[19px]" />
-        <ol className="space-y-6">
-          {beats.map((b, i) => (
+    <Section id="metrics" eyebrow="" title="Small wins that add up.">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {metrics.map((m, i) => {
+          const Icon = m.icon;
+          return (
             <Reveal
-              as="li"
-              key={b.time}
+              key={m.label}
               delay={i * 80}
-              className="relative grid grid-cols-[40px_1fr] items-start gap-4"
+              className="rounded-[24px] bg-white p-6 ring-1 ring-black/5"
             >
-              <div className="relative z-10 grid size-[30px] place-items-center rounded-full bg-earth-950 font-serif text-xs text-canvas md:size-10 md:text-sm">
-                {i + 1}
+              <div className="grid size-10 place-items-center rounded-xl bg-leaf-soft text-leaf">
+                <Icon className="size-5" strokeWidth={1.8} />
               </div>
-              <div className="rounded-[20px] bg-white p-5 ring-1 ring-black/5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-warm">
-                  {b.time}
-                </p>
-                <p className="mt-1 font-serif text-xl leading-snug">{b.title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-earth-600">{b.body}</p>
-              </div>
+              <p className="mt-5 font-serif text-4xl leading-none">{m.value}</p>
+              <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-warm">
+                {m.label}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-earth-600">{m.body}</p>
             </Reveal>
-          ))}
-        </ol>
+          );
+        })}
       </div>
     </Section>
   );
@@ -509,7 +460,7 @@ const trust = [
   {
     icon: HeartHandshake,
     title: "Guidance, not judgment",
-    body: "Remy suggests, never scolds. No streaks, no shame, no leaderboard.",
+    body: "Remy is nice to you. No streaks, no shame, no leaderboard.",
   },
   {
     icon: Shield,
@@ -523,9 +474,9 @@ function TrustSection() {
     <Reveal as="section" id="trust" className="border-y border-earth-200/60 bg-earth-100/40">
       <div className="mx-auto w-full max-w-6xl px-5 py-20 md:px-8 md:py-28">
         <Reveal as="header" className="mx-auto max-w-2xl text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-leaf">
+          {/* <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-leaf">
             Trust & care
-          </p>
+          </p> */}
           <h2 className="mt-3 font-serif text-4xl leading-tight md:text-5xl">
             Guidance, not judgment.
           </h2>
@@ -568,19 +519,19 @@ const faqs = [
     q: "Do I need a fancy phone?",
     a: "No. Remy runs on any modern Android or iOS phone with a rear camera. A tripod or phone stand helps, but isn't required.",
   },
-  {
-    q: "Will this cost money?",
-    a: "Remy is free during beta. We'll always keep a generous free tier; paid plans (if any) will unlock advanced skills, not basic guidance.",
-  },
+  // {
+  //   q: "Will this cost money?",
+  //   a: "Remy is free during beta. We'll always keep a generous free tier; paid plans (if any) will unlock advanced skills, not basic guidance.",
+  // },
   {
     q: "Is cooking the only skill?",
-    a: "It's where we're starting ” kitchens are full of small skills that benefit from a patient coach. More everyday skills are on the way.",
+    a: "We are starting with kitchens and more everyday skills are on the way.",
   },
 ];
 
 function FAQ() {
   return (
-    <Section id="faq" eyebrow="Common questions" title="The honest answers.">
+    <Section id="faq" eyebrow="" title="Frequently Asked Questions">
       <div className="mx-auto max-w-3xl divide-y divide-earth-200 overflow-hidden rounded-[28px] bg-white ring-1 ring-black/5">
         {faqs.map((f, i) => (
           <Reveal key={f.q} delay={i * 70}>
@@ -655,7 +606,7 @@ function FinalCTA() {
             </div>
           </div>
 
-          <form
+          {/* <form
             onSubmit={(e) => e.preventDefault()}
             className="rounded-[24px] bg-white p-6 ring-1 ring-black/5"
           >
@@ -681,7 +632,7 @@ function FinalCTA() {
             <p className="mt-3 text-[11px] text-earth-600">
               No spam. One short note when we open the doors.
             </p>
-          </form>
+          </form> */}
         </div>
       </div>
     </Reveal>
@@ -693,8 +644,8 @@ function FinalCTA() {
 function SiteFooter() {
   return (
     <Reveal as="footer" className="border-t border-earth-200/60">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-12 md:grid-cols-4 md:px-8">
-        <div className="md:col-span-2">
+      <div className="mx-auto w-full max-w-6xl px-5 py-12 md:px-8">
+        <div>
           <Link to="/" className="flex items-center gap-2">
             <div className="grid size-8 place-items-center rounded-xl bg-earth-950 text-canvas">
               <ChefHat className="size-4" />
@@ -706,67 +657,8 @@ function SiteFooter() {
             everyday life better.
           </p>
         </div>
-        <FooterCol
-          title="Product"
-          items={[
-            { label: "Open the app", to: "/app" },
-            { label: "How it works", href: "#how" },
-            { label: "Features", href: "#features" },
-            { label: "FAQ", href: "#faq" },
-          ]}
-        />
-        <FooterCol
-          title="Company"
-          items={[
-            { label: "About", href: "#" },
-            { label: "Press", href: "#" },
-            { label: "Privacy", href: "#" },
-            { label: "Contact", href: "#" },
-          ]}
-        />
-      </div>
-      <div className="border-t border-earth-200/60">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-5 py-6 text-[12px] text-earth-600 md:flex-row md:px-8">
-          <p>© {new Date().getFullYear()} Remy Labs. Made with care.</p>
-          <p className="inline-flex items-center gap-1.5">
-            <Sprout className="size-3.5 text-leaf" /> Cooking, first.
-          </p>
-        </div>
       </div>
     </Reveal>
-  );
-}
-
-function FooterCol({
-  title,
-  items,
-}: {
-  title: string;
-  items: { label: string; href?: string; to?: string }[];
-}) {
-  return (
-    <div>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-earth-600">
-        {title}
-      </p>
-      <ul className="mt-3 space-y-2 text-sm text-earth-800">
-        {items.map((it) =>
-          it.to ? (
-            <li key={it.label}>
-              <Link to={it.to} className="hover:text-earth-950">
-                {it.label}
-              </Link>
-            </li>
-          ) : (
-            <li key={it.label}>
-              <a href={it.href} className="hover:text-earth-950">
-                {it.label}
-              </a>
-            </li>
-          ),
-        )}
-      </ul>
-    </div>
   );
 }
 
@@ -776,11 +668,13 @@ function Section({
   id,
   eyebrow,
   title,
+  description,
   children,
 }: {
   id?: string;
   eyebrow: string;
   title: string;
+  description?: string;
   children: ReactNode;
 }) {
   return (
@@ -791,6 +685,11 @@ function Section({
             {eyebrow}
           </p>
           <h2 className="mt-3 font-serif text-4xl leading-tight md:text-5xl">{title}</h2>
+          {description ? (
+            <p className="mt-3 text-sm leading-relaxed text-earth-600 md:text-base">
+              {description}
+            </p>
+          ) : null}
         </Reveal>
         <div className="mt-14">{children}</div>
       </div>
@@ -820,7 +719,6 @@ function PhoneFrame({
           tone === "dark" ? "bg-earth-800" : "bg-canvas",
         )}
       >
-        {/* notch */}
         <div className="absolute left-1/2 top-2 z-10 h-5 w-24 -translate-x-1/2 rounded-full bg-earth-950/90" />
         {children}
       </div>
@@ -828,19 +726,19 @@ function PhoneFrame({
   );
 }
 
-function LiveCookingMock() {
+function LiveCookingImageScreen() {
   return (
     <div className="relative h-full w-full">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#5a4838_0%,#241a12_60%,#0a0604_100%)]" />
-      <div className="absolute inset-0 opacity-50 mix-blend-overlay bg-[conic-gradient(at_40%_60%,#fdba74,#92400e,#1c1917,#fdba74)]" />
-      <div className="absolute inset-0 grid place-items-center text-[5rem] opacity-30">ðŸ³</div>
-      {/* Step pill */}
+      <img
+        src="/images/opening2.jpg"
+        alt="Remy cooking coach app preview"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       <div className="absolute left-1/2 top-8 -translate-x-1/2 rounded-full bg-black/30 px-3 py-1.5 ring-1 ring-white/10 backdrop-blur-md">
         <p className="text-[10px] font-medium tracking-wide text-white">
-          Step 4 of 12 · Saute the garlic
+          Remove from oven
         </p>
       </div>
-      {/* AI bubble */}
       <div className="absolute inset-x-3 bottom-3 flex gap-2.5 rounded-[20px] bg-white/95 p-3.5 shadow-xl ring-1 ring-black/5 backdrop-blur-sm">
         <div className="grid size-8 shrink-0 place-items-center rounded-full bg-warm-soft">
           <span className="relative flex size-2">
@@ -853,7 +751,7 @@ function LiveCookingMock() {
             Coach · live
           </p>
           <p className="text-pretty text-[12.5px] leading-snug text-earth-950">
-            Garlic looks golden ” ease the heat down a notch.
+            Cheese looks golden. Ease the pizza homemade
           </p>
         </div>
       </div>
@@ -869,96 +767,26 @@ function SwapCard() {
       </div>
       <p className="mt-1.5 text-sm leading-snug">
         <span className="text-earth-600 line-through">Pine nuts</span>{" "}
-        <span className="font-semibold">†’ sunflower seeds</span>
+        <span className="font-semibold">to sunflower seeds</span>
       </p>
       <div className="mt-2 inline-flex rounded-full bg-leaf-soft px-2 py-0.5 text-[11px] font-semibold text-leaf">
-        ˆ’$4.80
+        -$4.80
       </div>
     </div>
   );
 }
 
-/* Small mocks used in How-It-Works */
-
-function SetupMock() {
-  const chips = ["Pasta", "Garlic", "Olive oil", "Parmesan", "Lemon", "Chili"];
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 rounded-2xl bg-white p-2.5 text-xs ring-1 ring-black/5">
-        <div className="grid size-7 place-items-center rounded-lg bg-warm text-white">
-          <Camera className="size-3.5" />
-        </div>
-        <span className="font-medium">Snap fridge & pantry</span>
-        <span className="ml-auto rounded-full bg-warm-soft px-2 py-0.5 text-[10px] font-semibold text-warm">
-          3 photos
-        </span>
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {chips.map((c, i) => (
-          <span
-            key={c}
-            className={cn(
-              "rounded-full px-2.5 py-1 text-[11px] font-medium ring-1",
-              i < 4
-                ? "bg-earth-950 text-canvas ring-earth-950"
-                : "bg-white text-earth-700 ring-black/5",
-            )}
-          >
-            {c}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CameraMock() {
-  return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#5a4838_0%,#1f160e_70%)]" />
-      <div className="absolute inset-0 grid place-items-center text-4xl opacity-40">ðŸ³</div>
-      <div className="absolute inset-x-2 bottom-2 flex gap-2 rounded-xl bg-white/95 p-2.5 backdrop-blur">
-        <span className="relative mt-1 flex size-2 shrink-0">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-warm opacity-70" />
-          <span className="relative inline-flex size-2 rounded-full bg-warm" />
-        </span>
-        <p className="text-[11px] leading-snug">Ease the heat down a notch.</p>
-      </div>
-    </div>
-  );
-}
-
-function FeedbackMock() {
-  return (
-    <div className="space-y-2">
-      <div className="rounded-2xl bg-leaf-soft p-3 ring-1 ring-leaf/15">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-leaf">Win</p>
-        <p className="text-[12px] font-medium leading-snug">Steady heat through the sear.</p>
-      </div>
-      <div className="rounded-2xl bg-warm-soft p-3 ring-1 ring-warm/15">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-warm">To try</p>
-        <p className="text-[12px] font-medium leading-snug">Slice garlic a touch thinner.</p>
-      </div>
-      <div className="rounded-2xl bg-white p-3 ring-1 ring-black/5">
-        <div className="flex items-center justify-between text-[11px]">
-          <span className="font-medium">Saute</span>
-          <span className="text-earth-600">70%</span>
-        </div>
-        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-earth-200">
-          <div className="h-full w-[70%] rounded-full bg-warm" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* Larger feature mocks */
+/* Larger mocks used in How-It-Works */
 
 function RecipeMock() {
   return (
     <div className="overflow-hidden rounded-[28px] bg-white ring-1 ring-black/5">
-      <div className="relative aspect-[4/3] bg-gradient-to-br from-warm-soft via-earth-100 to-earth-200">
-        <div className="absolute inset-0 grid place-items-center text-7xl opacity-80">ðŸ</div>
+      <div className="relative aspect-[4/3] bg-earth-100">
+        <img
+          src="/images/step1.jpg"
+          alt="Ingredients ready for a suggested recipe"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <span className="absolute right-4 top-4 rounded-full bg-canvas/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-earth-800 backdrop-blur">
           Suggested
         </span>
@@ -999,12 +827,14 @@ function MiniMeta({ icon: Icon, label }: { icon: typeof Timer; label: string }) 
 function CameraMockLarge() {
   return (
     <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] bg-earth-950 shadow-xl ring-1 ring-black/10">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#5a4838_0%,#241a12_60%,#0a0604_100%)]" />
-      <div className="absolute inset-0 opacity-50 mix-blend-overlay bg-[conic-gradient(at_40%_60%,#fdba74,#92400e,#1c1917,#fdba74)]" />
-      <div className="absolute inset-0 grid place-items-center text-7xl opacity-25">ðŸ³</div>
+      <img
+        src="/images/step2.jpg"
+        alt="Live cooking guidance camera view"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
 
       <div className="absolute left-1/2 top-5 -translate-x-1/2 rounded-full bg-black/30 px-3 py-1.5 ring-1 ring-white/10 backdrop-blur">
-        <p className="text-[11px] font-medium text-white">Step 4 · Saute the garlic</p>
+        <p className="text-[11px] font-medium text-white">Step 4</p>
       </div>
 
       <div className="absolute inset-x-4 bottom-4 space-y-2.5">
@@ -1020,14 +850,14 @@ function CameraMockLarge() {
               Coach
             </p>
             <p className="text-[13px] leading-snug">
-              Garlic is looking golden ” ease the heat down.
+              Let the salmon sizzle undisturbed for 4 to 5 minutes
             </p>
           </div>
         </div>
         <div className="rounded-[20px] bg-canvas p-4 ring-1 ring-black/5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-earth-600">Next</p>
           <p className="mt-1 font-serif text-base leading-tight">
-            Add the reserved pasta water, slowly.
+            Use tongs or chopsticks to flip the salmon around
           </p>
         </div>
       </div>
@@ -1067,9 +897,10 @@ function FeedbackMockLarge() {
 
 function SavingsMock() {
   const items = [
-    { from: "Pine nuts", to: "Sunflower seeds", save: "$4.80" },
-    { from: "Heavy cream", to: "Milk + butter", save: "$2.10" },
-    { from: "Fresh basil", to: "Frozen cubes", save: "$1.40" },
+    { from: "Pine nuts", to: "", save: "$4.80" },
+    // { from: "Pine nuts", to: "Sunflower seeds", save: "$4.80" },
+    // { from: "Heavy cream", to: "Milk + butter", save: "$2.10" },
+    // { from: "Fresh basil", to: "Frozen cubes", save: "$1.40" },
   ];
   return (
     <div className="space-y-3 rounded-[28px] bg-white p-6 ring-1 ring-black/5">
