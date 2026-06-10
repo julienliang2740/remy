@@ -137,7 +137,7 @@ function SiteNav() {
         </div>
         <div className="flex items-center gap-2">
           <Link
-            to="/remy-app.apk"
+            to="https://media.polyterminator.com/remy-app.apk"
             download
             className="inline-flex items-center gap-1.5 rounded-full bg-earth-950 px-4 py-2 text-sm font-semibold text-canvas transition-transform active:scale-95"
           >
@@ -174,7 +174,7 @@ function Hero() {
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <Link
-              to="/remy-app.apk"
+              to="https://media.polyterminator.com/remy-app.apk"
               download
               className="inline-flex items-center gap-2 rounded-2xl bg-earth-950 px-6 py-3.5 text-sm font-semibold text-canvas transition-transform active:scale-[0.98]"
             >
@@ -593,7 +593,7 @@ function FinalCTA() {
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
-                to="/remy-app.apk"
+                to="https://media.polyterminator.com/remy-app.apk"
                 download
                 className="inline-flex items-center gap-2 rounded-2xl bg-earth-950 px-6 py-3.5 text-sm font-semibold text-canvas transition-transform active:scale-[0.98]"
               >
