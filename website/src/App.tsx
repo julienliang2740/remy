@@ -13,6 +13,7 @@ import {
   Flame,
   ImageOff,
   Package,
+  Play,
   Receipt,
   ScanLine,
   ShoppingBasket,
@@ -370,39 +371,6 @@ function IngredientAnalysis() {
   );
 }
 
-function ComparisonCard({
-  src,
-  alt,
-  label,
-  title,
-  imageClassName,
-}: {
-  src: string;
-  alt: string;
-  label: string;
-  title: string;
-  imageClassName?: string;
-}) {
-  return (
-    <Reveal className="overflow-hidden rounded-[24px] bg-white p-2 ring-1 ring-black/5">
-      <figure>
-        <div className="aspect-video overflow-hidden rounded-[18px] bg-earth-100">
-          <ProductImage src={src} alt={alt} className={cn("h-full w-full", imageClassName)} />
-        </div>
-        <figcaption className="flex items-end justify-between gap-3 p-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-leaf">
-              {label}
-            </p>
-            <p className="mt-1 font-serif text-lg leading-tight">{title}</p>
-          </div>
-          <ArrowRight className="mb-0.5 size-4 shrink-0 text-earth-400" aria-hidden="true" />
-        </figcaption>
-      </figure>
-    </Reveal>
-  );
-}
-
 const appScreens = [
   {
     src: "/images/product/progress-overview.png",
@@ -695,31 +663,48 @@ function TrackingVideo() {
   );
 }
 
-const liveMoments = [
+const liveGalleryItems = [
   {
+    kind: "video" as const,
+    thumbnail: "/images/product/hand-tracking-salmon.png",
+    alt: "Hand-tracking landmarks following a cook's movements",
+    label: "",
+    title: "",
+    body: "",
+  },
+  {
+    kind: "image" as const,
     src: "/images/product/live-knife.png",
+    thumbnail: "/images/product/live-knife.png",
     alt: "Remy Live hand tracking during knife work",
-    label: "Knife work",
-    title: "Slice the pepper into thin strips",
-    body: "Hand position and the knife are tracked while the current instruction stays visible.",
+    label: "",
+    title: "",
+    body: "",
   },
   {
+    kind: "image" as const,
     src: "/images/product/live-salmon.png",
+    thumbnail: "/images/product/live-salmon.png",
     alt: "Remy Live tracking hands while salmon sears in a pan",
-    label: "Timing",
-    title: "Sear skin-side down for 4 minutes",
-    body: "The cook sees the active timer, the next action, and a cue to keep the fish in place.",
+    label: "",
+    title: "",
+    body: "",
   },
   {
+    kind: "image" as const,
     src: "/images/product/live-pepper.png",
+    thumbnail: "/images/product/live-pepper.png",
     alt: "Remy Live tracking both hands while a cook removes pepper seeds",
-    label: "Technique",
-    title: "Remove the core and seeds",
-    body: "The instruction advances with the cook while the hand analysis remains visible.",
+    label: "",
+    title: "",
+    body: "",
   },
 ];
 
 function LiveCoaching() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeItem = liveGalleryItems[activeIndex];
+
   return (
     <Reveal as="section" id="live" className="scroll-mt-16 px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto w-full max-w-6xl">
@@ -729,71 +714,72 @@ function LiveCoaching() {
           description="Remy uses live hand tracking and video analysis to follow timing, technique, and motion. The current step remains visible while short cues respond to what is happening."
         />
 
-        <div className="mt-14 grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
+        <div className="mx-auto mt-14 max-w-5xl">
           <Reveal className="overflow-hidden rounded-[28px] bg-earth-950 p-2 shadow-xl ring-1 ring-black/10">
             <figure>
               <div className="aspect-video overflow-hidden rounded-[22px] bg-earth-900">
-                <TrackingVideo />
+                {activeItem.kind === "video" ? (
+                  <TrackingVideo />
+                ) : (
+                  <ProductImage
+                    src={activeItem.src}
+                    alt={activeItem.alt}
+                    className="h-full w-full object-cover"
+                    loading="eager"
+                  />
+                )}
               </div>
               <figcaption className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 text-canvas">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-warm">
-                    Hand-tracking demo
+                    {activeItem.label}
                   </p>
-                  <p className="mt-1 font-serif text-xl">
-                    Remy follows the cook, not just the timer.
+                  <p className="mt-1 font-serif text-xl">{activeItem.title}</p>
+                  <p className="mt-1 max-w-2xl text-xs leading-relaxed text-canvas/65">
+                    {activeItem.body}
                   </p>
                 </div>
                 <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-canvas/75">
-                  18 second loop
+                  {activeItem.kind === "video" ? "" : ""}
                 </span>
               </figcaption>
             </figure>
           </Reveal>
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-            <ComparisonCard
-              src="/images/step2.jpg"
-              alt="Salmon searing in a cast iron pan before hand-tracking analysis is applied"
-              label="Camera view"
-              title="What the phone sees"
-              imageClassName="object-cover"
-            />
-            <ComparisonCard
-              src="/images/product/hand-tracking-salmon.png"
-              alt="Hand-tracking landmarks over both hands while a cook works beside searing salmon"
-              label="Remy analysis"
-              title="Hands and motion identified"
-              imageClassName="object-cover"
-            />
-          </div>
         </div>
 
-        <div className="mt-5 grid gap-5 md:grid-cols-3">
-          {liveMoments.map((moment, index) => (
-            <Reveal
-              key={moment.title}
-              delay={index * 80}
-              className="overflow-hidden rounded-[24px] bg-white p-2 ring-1 ring-black/5"
-            >
-              <figure>
-                <div className="aspect-video overflow-hidden rounded-[18px] bg-earth-100">
-                  <ProductImage
-                    src={moment.src}
-                    alt={moment.alt}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <figcaption className="p-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-warm">
-                    {moment.label}
-                  </p>
-                  <h3 className="mt-2 font-serif text-xl leading-tight">{moment.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-earth-600">{moment.body}</p>
-                </figcaption>
-              </figure>
-            </Reveal>
-          ))}
+        <div className="mx-auto mt-4 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-4">
+          {liveGalleryItems.map((item, index) => {
+            const isActive = activeIndex === index;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                aria-label={"Show " + item.label}
+                aria-pressed={isActive}
+                className={cn(
+                  "group relative aspect-square overflow-hidden rounded-[20px] bg-earth-950 p-1.5 text-left ring-1 ring-black/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warm",
+                  isActive
+                    ? "scale-[0.98] ring-2 ring-warm ring-offset-2 ring-offset-canvas"
+                    : "opacity-70 hover:opacity-100",
+                )}
+              >
+                <ProductImage
+                  src={item.thumbnail}
+                  alt=""
+                  className="h-full w-full rounded-[15px] object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+                <span className="absolute inset-x-1.5 bottom-1.5 flex items-center justify-between gap-2 rounded-b-[15px] bg-gradient-to-t from-black/85 via-black/50 to-transparent px-3 pb-2 pt-8 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
+                  {item.label}
+                  {item.kind === "video" ? (
+                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white text-earth-950">
+                      <Play className="size-3 fill-current" aria-hidden="true" />
+                    </span>
+                  ) : null}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </Reveal>
