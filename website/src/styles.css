@@ -1,148 +1,182 @@
 @import "tailwindcss" source(none);
 @source "../src";
-@import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Fonts are served from this origin so the page never waits on a third party. */
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/archivo-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/archivo-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/plex-mono-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+  Palette is sampled directly from the product: the jade of the Remy mark,
+  the pine used by the app's dark screens, and the paper used by its light
+  ones. Screenshots sit on the page without a seam because the page is
+  literally painted in the app's own background colour.
+*/
+:root {
+  --paper: #f5f4ef;
+  --paper-raised: #fbfaf6;
+
+  --ink: #16241f;
+  --ink-muted: #57635c;
+  --ink-faint: #8b948d;
+  --rule: #dedad0;
+
+  --pine: #143128;
+  --pine-raised: #1d4235;
+  --pine-rule: #2c5445;
+
+  --jade: #0f9d6e;
+  --jade-deep: #107552;
+  --mint: #63e6b0;
+}
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-pine: var(--pine);
+  --color-pine-raised: var(--pine-raised);
+  --color-pine-rule: var(--pine-rule);
+  --color-jade: var(--jade);
+  --color-jade-deep: var(--jade-deep);
+  --color-mint: var(--mint);
 
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
-  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
+  /* Three radii, each with a job: controls, panels, and device screens. */
+  --radius-control: 7px;
+  --radius-panel: 12px;
+  --radius-screen: 26px;
 
-  --color-canvas: var(--canvas);
-  --color-earth-950: var(--earth-950);
-  --color-earth-900: var(--earth-900);
-  --color-earth-800: var(--earth-800);
-  --color-earth-600: var(--earth-600);
-  --color-earth-400: var(--earth-400);
-  --color-earth-200: var(--earth-200);
-  --color-earth-100: var(--earth-100);
-  --color-warm: var(--warm);
-  --color-warm-soft: var(--warm-soft);
-  --color-leaf: var(--leaf);
-  --color-leaf-soft: var(--leaf-soft);
-}
-
-:root {
-  --radius: 1rem;
-
-  /* Rustic Modernist palette (oklch) */
-  --canvas: oklch(0.985 0.005 70);
-  --earth-950: oklch(0.21 0.012 50);
-  --earth-900: oklch(0.27 0.013 50);
-  --earth-800: oklch(0.36 0.014 55);
-  --earth-600: oklch(0.55 0.013 60);
-  --earth-400: oklch(0.74 0.012 65);
-  --earth-200: oklch(0.9 0.008 65);
-  --earth-100: oklch(0.95 0.006 70);
-  --warm: oklch(0.6 0.18 38);
-  --warm-soft: oklch(0.95 0.04 50);
-  --leaf: oklch(0.5 0.13 150);
-  --leaf-soft: oklch(0.95 0.04 150);
-
-  --background: var(--canvas);
-  --foreground: var(--earth-950);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--earth-950);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--earth-950);
-  --primary: var(--earth-950);
-  --primary-foreground: oklch(0.985 0.005 70);
-  --secondary: var(--earth-100);
-  --secondary-foreground: var(--earth-950);
-  --muted: var(--earth-100);
-  --muted-foreground: var(--earth-600);
-  --accent: var(--warm-soft);
-  --accent-foreground: var(--warm);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0.005 70);
-  --border: var(--earth-200);
-  --input: var(--earth-200);
-  --ring: var(--earth-400);
-}
-
-.dark {
-  --background: var(--earth-950);
-  --foreground: var(--canvas);
-  --card: var(--earth-900);
-  --card-foreground: var(--canvas);
-  --popover: var(--earth-900);
-  --popover-foreground: var(--canvas);
-  --primary: var(--canvas);
-  --primary-foreground: var(--earth-950);
-  --secondary: var(--earth-800);
-  --secondary-foreground: var(--canvas);
-  --muted: var(--earth-800);
-  --muted-foreground: var(--earth-400);
-  --accent: var(--earth-800);
-  --accent-foreground: var(--canvas);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --shadow-panel: 0 1px 2px rgb(20 49 40 / 0.05), 0 14px 30px -14px rgb(20 49 40 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(20 49 40 / 0.06), 0 30px 60px -24px rgb(20 49 40 / 0.32);
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
-  html,
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    margin: 0;
+    background-color: var(--paper);
+    color: var(--ink);
     font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-  }
-}
-
-@layer utilities {
-  .reveal-on-scroll {
-    opacity: 0;
-    transform: translateY(18px);
-    transition:
-      opacity 700ms ease,
-      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
-    transition-delay: var(--reveal-delay, 0ms);
-    will-change: opacity, transform;
+    text-rendering: optimizeLegibility;
   }
 
-  .reveal-on-scroll.is-visible {
-    opacity: 1;
-    transform: translateY(0);
+  h1,
+  h2,
+  h3 {
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--jade);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--jade);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  img,
+  video {
+    display: block;
+    max-width: 100%;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .reveal-on-scroll {
-      opacity: 1;
-      transform: none;
-      transition: none;
+    html {
+      scroll-behavior: auto;
     }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Display type: one scale, used three times, nowhere else. */
+  .t-display {
+    font-size: clamp(2.35rem, 1.5rem + 2.7vw, 3.6rem);
+    line-height: 1.01;
+    letter-spacing: -0.035em;
+  }
+
+  .t-section {
+    font-size: clamp(1.75rem, 1.25rem + 1.6vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.028em;
+  }
+
+  .t-lead {
+    font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+    line-height: 1.62;
+  }
+
+  .t-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+  }
+
+  /* Screenshots already carry their own status bar, so they are framed as
+     screenshots: a device corner radius, a hairline, and a real shadow.
+     No drawn notch, no fake hardware. */
+  .screen {
+    border-radius: var(--radius-screen);
+    box-shadow: var(--shadow-panel);
+    outline: 1px solid rgb(20 49 40 / 0.09);
+    outline-offset: -1px;
+    overflow: hidden;
   }
 }

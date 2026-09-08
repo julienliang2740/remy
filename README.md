@@ -101,7 +101,18 @@ Other website commands:
 ```bash
 npm run build
 npm run preview
+npm run lint
 ```
+
+### Website media
+
+`website/public/` only holds what the site actually serves: the WebP stills and
+the compressed demo video in `public/media/`, the self-hosted fonts in
+`public/fonts/`, and the favicon. Fonts are self-hosted so a page load never
+depends on Google Fonts.
+
+Full-resolution originals live in `website/media-src/` and are not deployed.
+See `website/media-src/README.md`.
 
 ## Mobile App
 
