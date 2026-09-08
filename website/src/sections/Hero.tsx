@@ -3,8 +3,8 @@ import { LiveDemo } from "@/components/LiveDemo";
 
 export function Hero() {
   return (
-    <section id="top" className="-mt-[60px] bg-pine text-paper">
-      <div className="mx-auto max-w-[1180px] px-6 pt-[5.5rem] pb-10 md:px-10 md:pt-[8.5rem] md:pb-20">
+    <section id="top" className="scroll-mt-[60px] bg-pine text-paper">
+      <div className="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:px-10 md:py-20">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-14">
           <div>
             <h1 className="t-display max-w-[15ch]">Remy watches your hands while you cook.</h1>
