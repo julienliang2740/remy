@@ -146,7 +146,7 @@
 @layer components {
   /* Display type: one scale, used three times, nowhere else. */
   .t-display {
-    font-size: clamp(2.35rem, 1.5rem + 2.7vw, 3.6rem);
+    font-size: clamp(2.1rem, 1.35rem + 2.7vw, 3.6rem);
     line-height: 1.01;
     letter-spacing: -0.035em;
   }

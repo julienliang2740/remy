@@ -34,30 +34,3 @@ export function DownloadButton({
     </a>
   );
 }
-
-export function SecondaryLink({
-  href,
-  tone = "light",
-  children,
-  className,
-}: {
-  href: string;
-  tone?: "light" | "dark";
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <a
-      href={href}
-      className={cn(
-        base,
-        tone === "light"
-          ? "border border-rule text-ink hover:bg-paper-raised"
-          : "border border-pine-rule text-paper hover:bg-pine-raised",
-        className,
-      )}
-    >
-      {children}
-    </a>
-  );
-}

@@ -6,26 +6,29 @@ import { DownloadButton } from "@/components/Actions";
 
 const nav = [
   { href: "#scan", label: "The scan" },
-  { href: "#live", label: "Remy Live" },
   { href: "#after", label: "After the cook" },
 ];
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false);
+  const [overHero, setOverHero] = useState(true);
 
-  /* The rule under the header only appears once content passes behind it. */
+  /* The hero is dark, the rest of the page is not, so the bar changes with it. */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const hero = document.getElementById("top");
+    if (!hero) return;
+
+    const observer = new IntersectionObserver(([entry]) => setOverHero(entry.isIntersecting), {
+      rootMargin: "-60px 0px 0px 0px",
+    });
+    observer.observe(hero);
+    return () => observer.disconnect();
   }, []);
 
   return (
     <header
       className={
-        "sticky top-0 z-50 bg-paper transition-shadow duration-200 " +
-        (scrolled ? "shadow-[0_1px_0_var(--rule)]" : "")
+        "sticky top-0 z-50 transition-colors duration-200 " +
+        (overHero ? "bg-transparent text-paper" : "bg-paper text-ink shadow-[0_1px_0_var(--rule)]")
       }
     >
       <div className="mx-auto flex h-[60px] max-w-[1180px] items-center gap-8 px-6 md:px-10">
@@ -33,9 +36,15 @@ export function Header() {
           <Wordmark />
         </a>
 
-        <nav className="hidden gap-7 text-[0.9375rem] text-ink-muted md:flex" aria-label="Sections">
+        <nav
+          className={
+            "hidden gap-7 text-[0.9375rem] transition-colors md:flex " +
+            (overHero ? "text-paper/70" : "text-ink-muted")
+          }
+          aria-label="Sections"
+        >
           {nav.map((item) => (
-            <a key={item.href} href={item.href} className="transition-colors hover:text-ink">
+            <a key={item.href} href={item.href} className="transition-colors hover:opacity-100">
               {item.label}
             </a>
           ))}
@@ -46,12 +55,17 @@ export function Header() {
             href={links.github}
             target="_blank"
             rel="noreferrer"
-            className="hidden items-center gap-2 rounded-control px-3 py-2 text-[0.9375rem] text-ink-muted transition-colors hover:bg-paper-raised hover:text-ink sm:inline-flex"
+            className={
+              "hidden items-center gap-2 rounded-control px-3 py-2 text-[0.9375rem] transition-colors sm:inline-flex " +
+              (overHero ? "text-paper/70 hover:text-paper" : "text-ink-muted hover:text-ink")
+            }
           >
             <GitHubIcon />
             GitHub
           </a>
-          <DownloadButton className="px-4 py-2.5">Download</DownloadButton>
+          <DownloadButton tone={overHero ? "dark" : "light"} className="px-4 py-2.5">
+            Download
+          </DownloadButton>
         </div>
       </div>
     </header>
