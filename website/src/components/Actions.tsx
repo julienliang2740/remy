@@ -25,7 +25,7 @@ export function DownloadButton({
         base,
         tone === "light"
           ? "bg-jade-deep text-white hover:bg-[#0d6244]"
-          : "bg-paper text-pine hover:bg-white",
+          : "bg-paper text-ink hover:bg-white",
         className,
       )}
     >

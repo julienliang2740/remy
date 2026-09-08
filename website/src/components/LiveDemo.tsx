@@ -79,7 +79,7 @@ export function LiveDemo() {
               >
                 <img src={frame.thumb} alt="" className="h-full w-full object-cover" />
                 {frame.kind === "video" && (
-                  <span className="absolute bottom-1.5 left-1.5 grid size-5 place-items-center rounded-full bg-pine/80 text-paper">
+                  <span className="absolute bottom-1.5 left-1.5 grid size-5 place-items-center rounded-full bg-ink/80 text-paper">
                     <PlayIcon className="size-2" />
                   </span>
                 )}
