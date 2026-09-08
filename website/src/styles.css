@@ -37,10 +37,11 @@
 }
 
 /*
-  Palette is sampled directly from the product: the jade of the Remy mark,
-  the pine used by the app's dark screens, and the paper used by its light
-  ones. Screenshots sit on the page without a seam because the page is
-  literally painted in the app's own background colour.
+  Paper is sampled from the app's own light screens, so screenshots sit on the
+  page without a seam. Jade is the Remy mark, and it stays an accent: the app's
+  forest green carries about six times the paper's chroma, and a whole band of
+  it reads as a different brand bolted onto the page. Dark sections use ink,
+  the same tone as the body type, so the site has one dark and one light.
 */
 :root {
   --paper: #f5f4ef;
@@ -48,12 +49,8 @@
 
   --ink: #16241f;
   --ink-muted: #57635c;
-  --ink-faint: #8b948d;
+  --ink-faint: #69716b;
   --rule: #dedad0;
-
-  --pine: #143128;
-  --pine-raised: #1d4235;
-  --pine-rule: #2c5445;
 
   --jade: #0f9d6e;
   --jade-deep: #107552;
@@ -67,9 +64,6 @@
   --color-ink-muted: var(--ink-muted);
   --color-ink-faint: var(--ink-faint);
   --color-rule: var(--rule);
-  --color-pine: var(--pine);
-  --color-pine-raised: var(--pine-raised);
-  --color-pine-rule: var(--pine-rule);
   --color-jade: var(--jade);
   --color-jade-deep: var(--jade-deep);
   --color-mint: var(--mint);
@@ -82,8 +76,8 @@
   --radius-panel: 12px;
   --radius-screen: 26px;
 
-  --shadow-panel: 0 1px 2px rgb(20 49 40 / 0.05), 0 14px 30px -14px rgb(20 49 40 / 0.22);
-  --shadow-lift: 0 2px 4px rgb(20 49 40 / 0.06), 0 30px 60px -24px rgb(20 49 40 / 0.32);
+  --shadow-panel: 0 1px 2px rgb(22 36 31 / 0.05), 0 14px 30px -14px rgb(22 36 31 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(22 36 31 / 0.06), 0 30px 60px -24px rgb(22 36 31 / 0.32);
 }
 
 @layer base {
@@ -175,7 +169,7 @@
   .screen {
     border-radius: var(--radius-screen);
     box-shadow: var(--shadow-panel);
-    outline: 1px solid rgb(20 49 40 / 0.09);
+    outline: 1px solid rgb(22 36 31 / 0.09);
     outline-offset: -1px;
     overflow: hidden;
   }

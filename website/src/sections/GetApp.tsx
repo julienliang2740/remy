@@ -4,7 +4,7 @@ import { ArrowIcon } from "@/components/icons";
 
 export function GetApp() {
   return (
-    <section className="bg-pine text-paper">
+    <section className="bg-ink text-paper">
       <div className="mx-auto max-w-[1180px] px-6 py-20 md:px-10 md:py-28">
         <h2 className="t-section max-w-[16ch]">Cook something tonight.</h2>
 
